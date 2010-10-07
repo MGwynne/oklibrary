@@ -102,6 +102,21 @@ fcl2tt(FF) := block([FF_full : expand_fcl(FF),TT_F,TT_T, n : length(FF[1])],
       map(lambda([L],endcons(1,L)), TT_T),
       map(lambda([L],endcons(0,L)), TT_F)))))$
 
+/* Takes a truth table and outputs a PLA file (taken as input
+   by minimizers such as Espresso) representing that truth
+   table where the last variable in each row is considered
+   to be the output variable. */
+print_tt2pla(TT) := if TT = matrix() then (
+    print(".i 0"), print(".o 0"))
+  else block([num_vars : length(TT[1])-1],
+    print(sconcat(".i ", num_vars)),
+    print(sconcat(".o 1")),
+    for line in TT do
+      print(apply(sconcat,rest(line,-1)), last(line)))$
+output_tt2pla(TT,n) := with_stdout(n,print_tt2pla(TT))$
+
+    
+
 /* ****************************
    * Combinatorial operations *
    ****************************

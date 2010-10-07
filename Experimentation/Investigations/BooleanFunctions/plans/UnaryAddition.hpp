@@ -100,11 +100,11 @@ unary_add_full_dnf_fcl(X,Y,Z) :=
       create_list(if k > p+q then -Z[k] else Z[k], k, 1, length(Z)))),
     p,0,length(X), q, 0, length(Y))]$
 
-unary_add_cnf_fcl_std(p,q) := 
+unary_add_full_cnf_fcl_std(p,q) := 
   unary_add_cnf_fcl(
     una_var_l('x,1,max(p,1)),una_var_l('y,1,max(q,1)),
     una_var_l('z,1,max(p,1)+max(q,1)))$
-unary_add_cnf_fcl(X,Y,Z) := 
+unary_add_full_cnf_fcl(X,Y,Z) := 
   [append(X,Y,Z), create_list(
     comp_sl(setify(append(
       create_list(if i > p then -X[i] else X[i], i, 1, length(X)),
@@ -246,7 +246,7 @@ m : 2; n : 2;
 print("p q #min_F_0 stat_min_F #min_F_1 stat_min_F_1 stat_BB_F Eq_0? Eq_1?");
 for p : 0 thru m do 
   for q : 0 thru n do block([min_F_0_l, BB_F],
-    min_F_0_l : all_minequiv_bvsr_cs(expand_fcs(map(setify,unary_add_cnf_fcl_std(p,q)))[2]),
+    min_F_0_l : all_minequiv_bvsr_cs(expand_fcs(map(setify,unary_add_full_cnf_fcl_std(p,q)))[2]),
     min_F_1_l : all_minequiv_bvsr_cs(
       map(comp_sl,
       setdifference(unary_all_tass_std(p,q),
@@ -287,7 +287,7 @@ p q #min_F_0 stat_min_F #min_F_1 stat_min_F_1 stat_BB_F Eq_0? Eq_1?
 unary_add_min_reps(m,n) := 
   all_minequiv_bvsr_sub_cs(
     unary_add_full_dnf_fcl_std(m,n)[2],
-    setdifference(unary_all_tass_std(m,n),setify(map(comp_sl,unary_add_cnf_fcl_std(m,n)[2]))))$
+    setdifference(unary_all_tass_std(m,n),setify(map(comp_sl,unary_add_full_cnf_fcl_std(m,n)[2]))))$
 
 unary_add_min_reps(1,1);
    \endverbatim

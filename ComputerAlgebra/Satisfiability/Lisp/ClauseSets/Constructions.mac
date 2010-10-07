@@ -19,11 +19,13 @@ oklib_load("OKlib/ComputerAlgebra/Satisfiability/Lisp/ClauseSets/Constructions.m
 \htmlonly
 */
 
+oklib_include("OKlib/ComputerAlgebra/CombinatorialMatrices/Lisp/Basics.mac");
 oklib_include("OKlib/ComputerAlgebra/Satisfiability/Lisp/ClauseSets/BasicOperations.mac")$
 oklib_include("OKlib/ComputerAlgebra/Hypergraphs/Lisp/SetSystems.mac")$
 oklib_include("OKlib/ComputerAlgebra/DataStructures/Lisp/HashMaps.mac")$
 oklib_include("OKlib/ComputerAlgebra/DataStructures/Lisp/Lists.mac")$
 oklib_include("OKlib/ComputerAlgebra/Satisfiability/Lisp/ClauseSets/PartialAssignments.mac")$
+
 
 
 /* **********************
@@ -38,9 +40,14 @@ oklib_include("OKlib/ComputerAlgebra/Satisfiability/Lisp/ClauseSets/PartialAssig
 c2cl_expand(C,V) := add_elements_l(C,all_tass_l(V))$
 /* The same, but where V is a set of variables, and a set is returned: */
 c2cs_expand(C,V) := setify(add_elements_l(C,all_tass_l(listify(V))))$
-/* Expanding a clause-set F into an equivalent full clause-set: */
+/* Expanding a clause-set FF into an equivalent full clause-set: */
 expand_fcs(FF) := block([V : FF[1]],
 [FF[1], lunion(create_list(c2cs_expand(C,setdifference(V,var_c(C))),C,listify(FF[2])))])$
+/* Expanding a clause-list FF into an equivalent full clause-list: */
+expand_fcl(FF) := block([V : setify(FF[1])],
+[FF[1],
+ stable_unique(lappend(
+     create_list(c2cl_expand(C,setdifference(V,var_c(C))),C,listify(FF[2]))))])$
 
 
 /* The natural representation of the "and" of two clause-sets as cnf's
@@ -81,6 +88,19 @@ neg_cs(F) := dual_cs(comp_cs(F))$
    neg_cs(F) as CNF is equivalent to the negation of F.
 */
 
+/* Computes the truth table for given CNF formal clause-list. */
+fcl2tt(FF) := block([FF_full : expand_fcl(FF),TT_F,TT_T, n : length(FF[1])],
+  FF_full : [FF_full[1], map(comp_sl,FF_full[2])],
+  TT_F : subst("[", matrix,subst(0,-1,ocom2m(clvar_fcl2ocom(FF_full)))),
+  /* 0-ary cartesian_product doesn't contain [] */
+  TT_T : 
+    remove_elements(TT_F,
+      if n > 0 then
+        listify(apply(cartesian_product,create_list({0,1},i,1,n)))
+      else [[]]),
+  return(apply(matrix,append(
+      map(lambda([L],endcons(1,L)), TT_T),
+      map(lambda([L],endcons(0,L)), TT_F)))))$
 
 /* ****************************
    * Combinatorial operations *

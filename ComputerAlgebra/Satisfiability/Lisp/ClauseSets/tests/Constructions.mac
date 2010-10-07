@@ -56,6 +56,15 @@ okltest_expand_fcs(f) := (
     assert(f([V, create_list({i},i,1,n)]) = [V, disjoin(comp_sl(V),FF[2])])),
   true)$
 
+okltest_expand_fcl(f) := (
+  assert(
+    okltest_full_fcs_v(buildq([f], lambda([V],
+          fcl2fcs(f([if listp(V) then V else listify(V),[{}]]))))) = true),
+  for n : 0 thru 5 do block([V : setn(n), FF : full_fcs(n)],
+    assert(fcl2fcs(f([listify(V), create_list({i},i,1,n)])) =
+      [V, disjoin(comp_sl(V),FF[2])])),
+  true)$
+
 okltest_or_cs2(f) := (
   assert(f({},{}) = {}),
   assert(f({},{{}}) = {}),
@@ -99,6 +108,16 @@ okltest_neg_cs(f) := (
   assert(f({{1}}) = {{-1}}),
   assert(f({{1},{-1}}) = {}),
   /* XXX */
+  true)$
+
+okltest_fcl2tt(f) := (
+  assert(f([[],[]]) = matrix([1])),
+  assert(f([[],[{}]]) = matrix([0])),
+  assert(f([[1],[]]) = matrix([0,1],[1,1])),
+  assert(f([[1],[{}]]) =  matrix([1,0],[0,0])),
+  assert(f([[1,2,3],[{1,2},{-2,3}]]) =
+    matrix([0,1,1,1],[1,0,0,1],[1,0,1,1],[1,1,1,1],
+      [0,0,1,0],[0,0,0,0],[1,1,0,0],[0,1,0,0])),
   true)$
 
 

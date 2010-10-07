@@ -29,6 +29,7 @@ oklib_include("OKlib/ComputerAlgebra/Satisfiability/Lisp/ClauseSets/tests/Constr
 okltest_c2cl_expand(c2cl_expand);
 okltest_c2cs_expand(c2cs_expand);
 okltest_expand_fcs(expand_fcs);
+okltest_expand_fcl(expand_fcl);
 
 okltest_or_cs2(or_cs2);
 okltest_or_cs(or_cs);
@@ -39,6 +40,7 @@ okltest_comp_cs(comp_cs);
 okltest_comp_fcs(comp_fcs);
 
 okltest_neg_cs(neg_cs);
+okltest_fcl2tt(fcl2tt);
 
 /* ****************************
    * Combinatorial operations *

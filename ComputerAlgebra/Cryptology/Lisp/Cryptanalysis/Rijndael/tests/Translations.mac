@@ -83,7 +83,7 @@ okltest_nsbox_ss(f) := block([n : 4],
   for r : 1 thru n do block([csttl],
     for c : 1 thru n do (
       for rw : 1 thru n do (
-        csttl : ss_csttl(r,c, rw, 4, false, aes_mc_forward),
+        csttl : ss_csttl(r,c, rw, 4, false,aes_std_ks, aes_mc_forward),
         assert(
           length(sublist(csttl,
               lambda([C], is(cstt_name(C) = "ss_sbox_cst")))) =
@@ -92,7 +92,7 @@ okltest_nsbox_ss(f) := block([n : 4],
 
 okltest_nmul_ss_gen(f) := block(
   [n : 4, rowcols : [1,2,4],mc_trans : [aes_mc_forward,aes_mc_bidirectional],
-   f_b_l : [true,false]],
+   f_b_l : [true,false], ks_trans : aes_std_ks],
   if oklib_test_level = 0 or oklib_test_level = 1 then (
     n : 1,rowcols : [1,2],f_b_l : [false], mc_trans : [aes_mc_forward]),
   for e in ['x,'x+1] do
@@ -101,7 +101,7 @@ okltest_nmul_ss_gen(f) := block(
         for rw in rowcols do 
           for f_b in f_b_l do
             for mc_tran in mc_trans do (
-               csttl : ss_csttl(r,c, rw, 4, f_b, mc_tran),
+               csttl : ss_csttl(r,c, rw, 4, f_b, ks_trans, mc_trans),
                assert(
                  length(sublist(csttl,
                      lambda([C],is(cstt_name(C) = "ss_mul_cst") and
@@ -111,7 +111,7 @@ okltest_nmul_ss_gen(f) := block(
 
 okltest_nmul_ss(f) := block(
   [n : 4, rowcols : [1,2,4],mc_trans : [aes_mc_forward,aes_mc_bidirectional],
-   f_b_l : [true,false]],
+   f_b_l : [true,false], ks_trans : aes_std_ks],
   if oklib_test_level = 0 or oklib_test_level = 1 then (
     n : 1,rowcols : [1,2],f_b_l : [false], mc_trans : [aes_mc_forward]),
   for e in ['x,'x+1] do
@@ -120,7 +120,7 @@ okltest_nmul_ss(f) := block(
         for rw in rowcols do 
           for f_b in f_b_l do
             for mc_tran in mc_trans do (
-               csttl : ss_csttl(r,c, rw, 4, f_b, mc_tran),
+               csttl : ss_csttl(r,c, rw, 4, f_b, ks_trans, mc_trans),
                assert(
                  length(sublist(csttl,
                      lambda([C],is(cstt_name(C) = "ss_mul_cst") and

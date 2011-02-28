@@ -57,10 +57,11 @@ num_columns : 2$
 num_rows : 2$
 exp : 4$
 final_round_b : false$
+ks_tran : aes_std_ks$
 box_tran : aes_ts_box$
 seed : 1$
 mc_tran : aes_mc_bidirectional$
-output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, ks_tran, box_tran, mc_tran)$
 
 shell> cat ssaes_r4_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
  n non_taut_c red_l taut_c orig_l comment_count finished_bool
@@ -76,7 +77,7 @@ shell> cat ssaes_r4_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
    </li>
    <li> We have the following statistics (computed):
    \verbatim
-maxima> for r : 1 thru 10 do print(ncl_list_ss(r,2,2,4,false,aes_ts_box,aes_mc_bidirectional));
+maxima> ncl_list_ss(4,2,2,4,false,aes_ts_box,aes_mc_bidirectional);
 [[1,16],[2,11264],[3,1024],[4,128],[9,1408],[16,88]] 
    \endverbatim
    </li>

@@ -127,7 +127,7 @@ oklib_include("OKlib/ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/Cons
 
 /* AES Translations
 
-         Boxes -
+         Boxes
              For each box we have the following translation
 
              aes_small_box - Each box is represented by the smallest known cnf
@@ -136,7 +136,7 @@ oklib_include("OKlib/ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/Cons
              aes_rbase_box - Each box is represented by a CNF which is
                              an r_1 base.
 
-         MixColumns -
+         MixColumns
              For the translation of the MixColumns component, we may either
              add additional constraints translating the inversion as well
              or simply translate the component in the forward direction.
@@ -144,8 +144,15 @@ oklib_include("OKlib/ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/Cons
              aes_mc_forward
              aes_mc_bidirectional
 
+         Key Schedule
+             aes_std_ks - Standard AES key schedule
+             aes_id_ks  - Making the AES key schedule the identity (all keys
+                          the same)
+
 */
 
+declare(aes_std_ks, noun)$
+declare(aes_id_ks, noun)$
 declare(aes_small_box, noun)$
 declare(aes_ts_box, noun)$
 declare(aes_rbase_box, noun)$
@@ -196,8 +203,18 @@ aes_std_fcl(r) := aes_fcl(r, aes_small_box, aes_ts_box)$
 
 /* Small Scale AES */
 
-ss_csttl(r,ss_num_columns, ss_num_rows, ss_exp, final_round_b, mc_tran) :=
-  block([num_block_bits : ss_num_columns * ss_num_rows * ss_exp],
+ss_csttl(r,ss_num_columns, ss_num_rows, ss_exp, final_round_b, ks_variant, 
+         mc_tran) :=
+  block([num_block_bits : ss_num_columns * ss_num_rows * ss_exp, rewrite_map],
+    rewrite_map :
+      if mc_tran = aes_mc_bidirectional then ss_bimc_rewrite_mapping_std
+      else if mc_tran = aes_mc_boolm then ss_boolm_rewrite_mapping_std
+      else if mc_tran = aes_mc_ts then ss_tsmc_rewrite_mapping_std
+      else ss_rewrite_mapping_std,
+    if ks_variant = aes_id_ks then
+      rewrite_map :  listify(
+        define_set_map(setify(rewrite_map),
+          "ss_key_expansion_cst",ss_key_expansion_id_cstrb )),
     rewrite_all_csttl(
       [cstt_new("ss_cst",
         generate_aes_constraint_vars(1,3*num_block_bits,
@@ -207,13 +224,18 @@ ss_csttl(r,ss_num_columns, ss_num_rows, ss_exp, final_round_b, mc_tran) :=
            ss_affine_constant(2,ss_exp),
            ss_mixcolumns_matrix(2,ss_exp,ss_num_rows),final_round_b],
            lambda([a],a))],
-    if mc_tran = aes_mc_bidirectional then ss_bimc_rewrite_mapping_std
-    else if mc_tran = aes_mc_boolm then ss_boolm_rewrite_mapping_std
-    else if mc_tran = aes_mc_ts then ss_tsmc_rewrite_mapping_std
-    else ss_rewrite_mapping_std))$
+         rewrite_map))$
 /*aes_cstt_std_l(r) := aes_csttl(r, aes_mc_forward)$*/
 
-ss_cstt_vars_l(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, mc_tran) :=
+ss_cstt_vars_l(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, ks_variant, mc_tran) :=
+block([rewrite_map],
+  rewrite_map :
+    if mc_tran = aes_mc_bidirectional then ss_bimc_rewrite_mapping_std
+      else ss_rewrite_mapping_std,
+    if ks_variant = aes_id_ks then
+      rewrite_map :  listify(
+        define_set_map(setify(rewrite_map),
+          "ss_key_expansion_cst",ss_key_expansion_id_cstrb )),
   append(
     generate_aes_constraint_vars(1,3*(ss_num_columns*ss_num_rows*ss_exp),
         lambda([a],a),"ss_cst"),
@@ -226,14 +248,14 @@ ss_cstt_vars_l(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, mc_tran) :
            ss_affine_constant(2,ss_exp),
            ss_mixcolumns_matrix(2,ss_exp,ss_num_rows),final_round_b],
            lambda([a],a))],
-      if mc_tran = aes_mc_bidirectional then ss_bimc_rewrite_mapping_std
-      else ss_rewrite_mapping_std))$
+      rewrite_map)))$
 
-ss_fcl(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran) := block(
-  [ss_csttl : ss_csttl(r,ss_num_columns, ss_num_rows, ss_exp, final_round_b,mc_tran),
-  ss_vars_l, prop_csttl],
+ss_fcl(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, ks_variant,
+       box_tran, mc_tran) := block([ss_csttl, ss_vars_l, prop_csttl],
+  ss_csttl : ss_csttl(r,ss_num_columns, ss_num_rows, ss_exp, final_round_b,
+    ks_variant, mc_tran),
   ss_vars_l : ss_cstt_vars_l(r,ss_num_columns,
-      ss_num_rows, ss_exp, final_round_b,mc_tran),
+      ss_num_rows, ss_exp, final_round_b,ks_variant,mc_tran),
   prop_csttl : prop_all_csttl(ss_csttl, ss_vars_l, ss_propagations),
   csttl2fcl(prop_csttl[1],prop_csttl[2],
     if box_tran = aes_small_box then
@@ -244,25 +266,30 @@ ss_fcl(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran)
       ss_ts_translation_mapping))$
 
 
-output_ss_fcl(n,r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran) :=
+output_ss_fcl(n,r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, ks_variant,
+              box_tran, mc_tran) :=
   block([FF, FF_std],
     if oklib_monitor then print("Starting translation..."),
-    FF : ss_fcl(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran),
+    FF : ss_fcl(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b,
+                ks_variant, box_tran, mc_tran),
     if oklib_monitor then print("Starting standardisation..."),
     FF_std : standardise_fcl(FF),
     if oklib_monitor then print("Starting output..."),
     output_fcl_v(sconcat("Small Scale AES with ",
                    "r=",r,",c=",ss_num_columns,",rw=",ss_num_rows,
                    ",e=",ss_exp,",final=",final_round_b,
-                   ",box_tran=",box_tran,",mc_tran=",mc_tran),
+                   ",ks_tran=",ks_tran,",box_tran=",box_tran,
+                   ",mc_tran=",mc_tran),
                  FF_std[1],n,
       FF_std[2]))$
   
-output_ss_fcl_std(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran) :=
+output_ss_fcl_std(r, ss_num_columns, ss_num_rows, ss_exp, final_round_b,
+                  ks_variant, box_tran, mc_tran) :=
   output_ss_fcl(
     sconcat("ssaes_r", r, "_c",ss_num_columns, "_rw",ss_num_rows,"_e",ss_exp,
       "_f",if final_round_b then 1 else 0, ".cnf"),
-    r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, box_tran, mc_tran)$
+    r, ss_num_columns, ss_num_rows, ss_exp, final_round_b, ks_variant,
+    box_tran, mc_tran)$
     
 
 ss_trans_fcl(cst, box_tran, mc_tran) := block(
@@ -280,8 +307,9 @@ ss_trans_fcl(cst, box_tran, mc_tran) := block(
 /* Takes a partial assignment, along with small scale parameters
    and returns true if the partial assignment represents a valid
    small scale encryption using those parameters. */
-ss_validate(pa, r, ss_num_columns, ss_num_rows, ss_exp, final_round_b) :=
-block([block_size],
+ss_validate(pa, r, ss_num_columns, ss_num_rows, ss_exp, final_round_b,
+            ks_variant) :=
+block([block_size, b : 2, C_true, key_schedule_f],
   block_size : ss_num_columns * ss_num_rows * ss_exp,
   P : ss_pa2matrix(pa, create_list(i,i,1,block_size),
     2, ss_exp, ss_polynomial(2,ss_exp), ss_num_rows),
@@ -289,8 +317,21 @@ block([block_size],
     2, ss_exp, ss_polynomial(2,ss_exp), ss_num_rows),
   C : ss_pa2matrix(pa, create_list(i,i,2*block_size+1,3*block_size),
     2, ss_exp, ss_polynomial(2,ss_exp), ss_num_rows),
-  return(
-    is(ss_encrypt(P,K,r,2,ss_exp) = C))
+  if ks_variant = aes_id_ks then key_schedule_f : lambda([[A]], A[1])
+  else key_schedule_f : ss_keyschedule,
+  if final_round_b then
+    C_true : ss_encrypt_wf_gen(P, K, r, b,ss_exp,
+                          ss_polynomial(b,ss_exp),
+                          buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                          ss_mixcolumns_matrix(b,ss_exp,length(P)),
+                          key_schedule_f)
+  else
+    C_true : ss_encrypt_gen(P, K, r, b,ss_exp,
+                       ss_polynomial(b,ss_exp),
+                       buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                       ss_mixcolumns_matrix(b,ss_exp,length(P)),
+                       key_schedule_f),
+  return(is(C_true = C))
 )$
 
 /******************************************************************
@@ -776,19 +817,32 @@ ss_pa2matrix_std(lit_set, e,num_rows, num_cols) :=
 
 /* Outputs random plaintext, ciphertext pair as a clause-set with
    the associated unit clauses, given the small scale parameters. */
-output_ss_random_pc_pair(seed, num_rounds, num_cols, num_rows,ss_exp, final_round_b) :=
+output_ss_random_pc_pair(seed, num_rounds, num_cols, num_rows,ss_exp,
+                         final_round_b, ks_variant) :=
   block(
     [s, plaintext, key, ciphertext, comment, filename, plaintext_vars,
      ciphertext_vars, pc_phi, pc_unit_fcs, b : 2,
-     mod_poly : ss_polynomial(2,ss_exp)],
+     mod_poly : ss_polynomial(2,ss_exp), key_schedule_f],
     s : make_random_state(seed),
     set_random_state(s),
     plaintext : ss_random_matrix(b,ss_exp,mod_poly,num_rows,num_cols),
     key : ss_random_matrix(b,ss_exp,mod_poly,num_rows, num_cols),
+    if ks_variant = aes_id_ks then key_schedule_f : lambda([[A]], A[1])
+    else key_schedule_f : ss_keyschedule,
     if final_round_b then
-      ciphertext : ss_encrypt_wf(plaintext, key, num_rounds, b,ss_exp)
+      ciphertext :
+        ss_encrypt_wf_gen(plaintext, key, num_rounds, b,ss_exp,
+                          ss_polynomial(b,ss_exp),
+                          buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                          ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                          key_schedule_f)
     else
-      ciphertext : ss_encrypt(plaintext, key, num_rounds, b,ss_exp),
+      ciphertext :
+        ss_encrypt_gen(plaintext, key, num_rounds, b,ss_exp,
+                       ss_polynomial(b,ss_exp),
+                       buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                       ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                       key_schedule_f),
     comment : sconcat(
       "S : ", seed, " ",
       "P : ", ss_matrix2hex(plaintext, b,ss_exp,mod_poly), " ",
@@ -807,19 +861,32 @@ output_ss_random_pc_pair(seed, num_rounds, num_cols, num_rows,ss_exp, final_roun
     pc_unit_fcs : [setify(create_list(i,i,1, 3*ss_exp * num_rows * num_cols)),
                    setify(map(set, pc_phi))],
     output_fcs(comment, pc_unit_fcs, filename))$
-output_ss_random_pk_pair(seed, num_rounds, num_cols, num_rows,ss_exp, final_round_b) :=
+output_ss_random_pk_pair(seed, num_rounds, num_cols, num_rows,ss_exp,
+                         final_round_b, ks_variant) :=
   block(
     [s, plaintext, key, ciphertext, comment, filename, plaintext_vars,
      ciphertext_vars, pc_phi, pc_unit_fcs, b : 2,
-     mod_poly : ss_polynomial(2,ss_exp)],
+     mod_poly : ss_polynomial(2,ss_exp), keyschedule_f],
     s : make_random_state(seed),
     set_random_state(s),
     plaintext : ss_random_matrix(b,ss_exp,mod_poly,num_rows,num_cols),
     key : ss_random_matrix(b,ss_exp,mod_poly,num_rows, num_cols),
+    if ks_variant = aes_id_ks then key_schedule_f : lambda([[A]], A[1])
+    else key_schedule_f : ss_keyschedule,
     if final_round_b then
-      ciphertext : ss_encrypt_wf(plaintext, key, num_rounds, b,ss_exp)
+      ciphertext :
+        ss_encrypt_wf_gen(plaintext, key, num_rounds, b,ss_exp,
+                          ss_polynomial(b,ss_exp),
+                          buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                          ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                          key_schedule_f)
     else
-      ciphertext : ss_encrypt(plaintext, key, num_rounds, b,ss_exp),
+      ciphertext :
+        ss_encrypt_gen(plaintext, key, num_rounds, b,ss_exp,
+                       ss_polynomial(b,ss_exp),
+                       buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                       ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                       key_schedule_f),
     comment : sconcat(
       "S : ", seed, " ",
       "P : ", ss_matrix2hex(plaintext, b,ss_exp,mod_poly), " ",
@@ -838,19 +905,32 @@ output_ss_random_pk_pair(seed, num_rounds, num_cols, num_rows,ss_exp, final_roun
     pc_unit_fcs : [setify(create_list(i,i,1, 3*ss_exp * num_rows * num_cols)),
                    setify(map(set, pc_phi))],
     output_fcs(comment, pc_unit_fcs, filename))$
-output_ss_random_kc_pair(seed, num_rounds, num_cols, num_rows,ss_exp, final_round_b) :=
+output_ss_random_kc_pair(seed, num_rounds, num_cols, num_rows,ss_exp,
+                         final_round_b, key_schedule_f) :=
   block(
     [s, plaintext, key, ciphertext, comment, filename, plaintext_vars,
      ciphertext_vars, pc_phi, pc_unit_fcs, b : 2,
-     mod_poly : ss_polynomial(2,ss_exp)],
+     mod_poly : ss_polynomial(2,ss_exp), key_schedule_f],
     s : make_random_state(seed),
     set_random_state(s),
     plaintext : ss_random_matrix(b,ss_exp,mod_poly,num_rows,num_cols),
     key : ss_random_matrix(b,ss_exp,mod_poly,num_rows, num_cols),
+    if ks_variant = aes_id_ks then key_schedule_f : lambda([[A]], A[1])
+    else key_schedule_f : ss_keyschedule,
     if final_round_b then
-      ciphertext : ss_encrypt_wf(plaintext, key, num_rounds, b,ss_exp)
+      ciphertext :
+        ss_encrypt_wf_gen(plaintext, key, num_rounds, b,ss_exp,
+                          ss_polynomial(b,ss_exp),
+                          buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                          ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                          key_schedule_f)
     else
-      ciphertext : ss_encrypt(plaintext, key, num_rounds, b,ss_exp),
+      ciphertext :
+        ss_encrypt_gen(plaintext, key, num_rounds, b,ss_exp,
+                       ss_polynomial(b,ss_exp),
+                       buildq([b,ss_exp],lambda([a], ss_sbox(a,b,ss_exp))),
+                       ss_mixcolumns_matrix(b,ss_exp,length(plaintext)),
+                       key_schedule_f),
     comment : sconcat(
       "S : ", seed, " ",
       "P : ", ss_matrix2hex(plaintext, b,ss_exp,mod_poly), " ",

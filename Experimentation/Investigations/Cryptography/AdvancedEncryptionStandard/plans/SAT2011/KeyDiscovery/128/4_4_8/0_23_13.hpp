@@ -60,10 +60,11 @@ num_columns : 4;
 num_rows : 4;
 exp : 8;
 final_round_b : true;
+ks_tran : aes_std_ks;
 box_tran : aes_ts_box;
 seed : 1;
 mc_tran : aes_mc_bidirectional;
-output_ss_fcl_std(num_rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran);
+output_ss_fcl_std(num_rounds, num_columns, num_rows, exp, final_round_b, ks_tran, box_tran, mc_tran);
 
 shell> cat ssaes_r1_c4_rw4_e8_f1.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
  n non_taut_c red_l taut_c orig_l comment_count finished_bool

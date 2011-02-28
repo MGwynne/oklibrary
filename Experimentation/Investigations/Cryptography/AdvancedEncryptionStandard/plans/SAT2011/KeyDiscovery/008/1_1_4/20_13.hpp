@@ -50,7 +50,7 @@ License, or any later version. */
   <ul>
    <li> Generating simplest small scale AES for 10 rounds (with MixColumns):
    \verbatim
-shell> ${OKlib}/Experimentation/Investigations/Cryptography/AdvancedEncryptionStandard/generate_aes_experiment 20 1 1 1 8 false aes_ts_box aes_mc_bidirectional
+shell> ${OKlib}/Experimentation/Investigations/Cryptography/AdvancedEncryptionStandard/generate_aes_experiment 20 1 1 1 8 false aes_std_ks aes_ts_box aes_mc_bidirectional
 shell> cat ssaes_r20_c1_rw1_e8_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
  n non_taut_c red_l taut_c orig_l comment_count finished_bool
 11224 176232 517376 0 517376 11225 1
@@ -71,7 +71,7 @@ maxima> ncl_list_ss(20,1,1,4,false,aes_ts_box,aes_mc_bidirectional);
    <li> Then we run experiments for AES instances with one round, up to
    those with twenty rounds, and inspect the results for round 20.
    \verbatim
-shell> ${OKlib}/Experimentation/Investigations/Cryptography/AdvancedEncryptionStandard/run_aes_experiment 20 1 1 1 8 false aes_ts_box aes_mc_bidirectional
+shell> ${OKlib}/Experimentation/Investigations/Cryptography/AdvancedEncryptionStandard/run_aes_experiment 20 1 1 1 8 false aes_std_ks aes_ts_box aes_mc_bidirectional
    \endverbatim
    </li>
    <li> precosat236 solves this problem with no decisions in a fraction

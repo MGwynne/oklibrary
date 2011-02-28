@@ -36,9 +36,9 @@ License, or any later version. */
    field element, sboxes in the key expansion, additions in the key expansion 
    and constants in the key expansion:
    \verbatim
-> print(component_statistics_ss(2,2,2,4,false,aes_mc_bidirectional));
+> component_statistics_ss(2,2,2,4,false,aes_mc_bidirectional);
 [2,0,8,112,[[x,16],[x+1,16]],4,32,8] 
-> print(component_statistics_ss(2,2,2,4,false,aes_mc_forward));
+> component_statistics_ss(2,2,2,4,false,aes_mc_forward);
 [2,0,8,80,[[x,8],[x+1,8]],4,32,8] 
    \endverbatim
    Note that the inverse MixColumns uses the same multiplication
@@ -56,6 +56,7 @@ num_columns : 2$
 num_rows : 2$
 exp : 4$
 final_round_b : false$
+ks_tran : aes_std_ks$
 box_tran : aes_ts_box$
 seed : 1$
 mc_tran : aes_mc_bidirectional$
@@ -75,7 +76,7 @@ shell> cat ssaes_r2_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG  
    </li>
    <li> We have the following statistics (computed):
    \verbatim
-maxima> print(ncl_list_ss(2,2,2,4,false,aes_ts_box,aes_mc_bidirectional));
+maxima> ncl_list_ss(2,2,2,4,false,aes_ts_box,aes_mc_bidirectional);
 [[1,8],[2,5632],[3,544],[4,64],[9,704],[16,44]] 
    \endverbatim
    </li>
@@ -176,11 +177,12 @@ rounds : 2$
 num_columns : 2$
 num_rows : 2$
 exp : 4$
+ks_tran : aes_std_ks$
 final_round_b : false$
 box_tran : aes_rbase_box$
 seed : 1$
 mc_tran : aes_mc_bidirectional$
-output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, ks_tran, box_tran, mc_tran)$
 
 shell> cat ssaes_r1_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
  n non_taut_c red_l taut_c orig_l comment_count finished_bool

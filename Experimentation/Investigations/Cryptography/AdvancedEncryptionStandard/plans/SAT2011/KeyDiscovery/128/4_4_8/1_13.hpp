@@ -36,7 +36,8 @@ License, or any later version. */
      <li> The MixColumns operation is decomposed into its field
      multiplications (02 and 03) and addition operations. </li>
      <li> The MixColumns operation is translated by translating both
-     the MixColumns operation and its inverse (it is self-inverse). </li>
+     the MixColumns operation and its inverse (with field multiplications
+     09, 11, 13 and 14). </li>
      <li> We treat S-boxes, field multiplications and additions as boxes.
      </li>
      <li> The S-box and field multiplications are considered as a 16x1

@@ -142,26 +142,28 @@ maxima> ncl_list_full_dualts(8,16);
      <li> 16 : 60 = 60 boxes * 1. </li>
     </ul>
    </li>
-   <li> Then we can generate a random assignment with the plaintext and
-   ciphertext, leaving the key unknown:
-   \verbatim
+   <li> Considering a single plaintext-ciphertext pair:
+    <ul>
+     <li> Then we can generate a random assignment with the plaintext and
+     ciphertext, leaving the key unknown:
+     \verbatim
 maxima> output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
-   \endverbatim
-   and the merging the assignment with the translation:
-   \verbatim
+     \endverbatim
+     and the merging the assignment with the translation:
+     \verbatim
 shell> AppendDimacs-O3-DNDEBUG ssaes_r1_c2_rw4_e4_f0.cnf ssaes_pkpair_r1_c2_rw4_e4_f0_s1.cnf > r1_keyfind.cnf
-   \endverbatim
-   </li>
-   <li> OKsolver_2002:
-   \verbatim
+     \endverbatim
+     </li>
+     <li> OKsolver_2002:
+     \verbatim
 shell> OKsolver_2002-O3-DNDEBUG r1_keyfind.cnf
 c running_time(sec)                     42.8
 c number_of_nodes                       2915
 c number_of_2-reductions                25478
-   \endverbatim
-   </li>
-   <li> minisat-2.2.0 and glucose:
-   \verbatim
+     \endverbatim
+     </li>
+     <li> minisat-2.2.0 and glucose:
+     \verbatim
 shell> minisat-2.2.0 r1_keyfind.cnf
 restarts              : 126
 conflicts             : 38174          (11967 /sec)
@@ -183,13 +185,282 @@ c conflicts             : 16554          (13035 /sec)
 c decisions             : 21834          (1.56 % random) (17192 /sec)
 c propagations          : 3407020        (2682693 /sec)
 c CPU time              : 1.27 s
-   \endverbatim
+     \endverbatim
+     </li>
+    </ul>
+   </li>
+   <li> Considering 20 plaintext-ciphertext pairs, randomising the clause-set
+   5 different ways:
+    <ul>
+     <li> Generate 20 random assignment with the plaintext and ciphertext,
+     leaving the key unknown:
+     \verbatim
+maxima> for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
+     \endverbatim
+     </li>
+     <li> Running minisat-2.2.0:
+     \verbatim
+shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    (time minisat-2.2.0 r${r}_k${k}_s${s}.cnf) > minisat_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> minisat_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("minisat_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r    n        c        t sat      cfs      dec    rts       r1 mem  ptime
+1 1 1396 10052.97 3.065744   1 32123.65 35573.64 106.46 12966258   9 0.0098
+   stime     cfl r    k s
+1 0.0147 1007711 1 10.5 3
+     \endverbatim
+     </li>
+     <li> Running OKsolver_2002:
+     \verbatim
+shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+     \endverbatim
+     yields:
+     \verbatim
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> oksolver_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("oksolver_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r    n     c     l      t sat    nds r1       r2 pls ats     h file n2cr dmcl
+1 1 1396 10192 31380 49.499   1 3760.9 68 229450.3   0   0 12.88   NA 7808    0
+  dn  dc  dl snds qnds mnds tel oats n2cs m2cs r    k s
+1 68 212 660    0    0    0   0    0    0    0 1 10.5 3
+     \endverbatim
+     </li>
+    </ul>
    </li>
    <li> We can check we get the right result with:
    \verbatim
 shell> OKsolver_2002-O3-DNDEBUG -O r1_keyfind.cnf | grep "^v" | $OKlib/Experimentation/Investigations/Cryptography/AdvancedEncryptionStandard/validate_aes_assignment 1 2 4 4 0 && echo "VALID"
 VALID
    \endverbatim
+   </li>
+  </ul>
+
+
+  \todo Using the "minimum" box translation
+  <ul>
+   <li> Translating the AES cipher treating S-boxes and field multiplications
+   as whole boxes and translating these boxes using the smallest CNF
+   translations. </li>
+   <li> Generating aes(2,4,2,4):
+   \verbatim
+shell> mkdir aes_4_2_4/min
+shell> cd aes_4_2_4/min
+shell> oklib --maxima
+oklib_load_all()$
+num_rounds : 1$
+num_rows : 4$
+num_columns : 4$
+exp : 4$
+final_round_b : false$
+box_tran : aes_small_box$
+mc_tran : aes_mc_bidirectional$
+oklib_monitor : true$
+output_ss_fcl_std(num_rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+
+shell> cat ssaes_r2_c4_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
+ n non_taut_c red_l taut_c orig_l comment_count finished_bool
+632 2432 7632 0 7632 633 1
+ length count
+1 8
+2 160
+3 1792
+4 432
+5 40
+   \endverbatim
+   </li>
+   <li> Statistics must be explained for this instance. </li>
+   <li> Generating 20 random plaintext-ciphertext pairs and running
+   solvers instances instantiated with these pairs to find the key:
+    <ul>
+     <li> Computing the random plaintext-ciphertext pairs:
+     \verbatim
+for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
+     \endverbatim
+     </li>
+     <li> Running minisat-2.2.0:
+     \verbatim
+shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> minisat_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("minisat_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r   n       c         t sat      cfs      dec   rts      r1 mem ptime  stime
+1 1 436 2231.11 0.8882344   1 33807.72 36215.41 107.5 3798884   8     0 0.0067
+       cfl r    k s
+1 500397.7 1 10.5 3
+     \endverbatim
+     </li>
+     <li> Running OKsolver_2002:
+     \verbatim
+shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> oksolver_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("oksolver_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r   n    c    l     t sat      nds r1       r2 pls  ats     h file n2cr dmcl
+1 1 436 2372 9244 13.91   1 55539.19 68 71163.17   0 2.66 22.53   NA  232    0
+  dn  dc  dl   snds qnds   mnds tel  oats n2cs m2cs r    k s
+1 68 212 660 129.11 0.05 146.15   0 13.23    0    0 1 10.5 3
+     \endverbatim
+     </li>
+    </ul>
+   </li>
+  </ul>
+
+
+  \todo Using the 1-base box translation
+  <ul>
+   <li> Translating the AES cipher treating Sboxes and field multiplications
+   as whole boxes and translating these boxes using the 1-base translation.
+   </li>
+   <li> Generating aes(1,4,2,4):
+   \verbatim
+shell> mkdir aes_4_2_4/1base
+shell> cd aes_4_2_4/1base
+shell> oklib --maxima
+oklib_load_all()$
+num_rounds : 1$
+num_rows : 4$
+num_columns : 2$
+exp : 4$
+final_round_b : false$
+box_tran : aes_rbase_box$
+mc_tran : aes_mc_bidirectional$
+oklib_monitor : true$
+output_ss_fcl_std(num_rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+
+shell> cat ssaes_r20_c1_rw1_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
+ n non_taut_c red_l taut_c orig_l comment_count finished_bool
+492 2136 6528 0 6528 493 1
+ length count
+1 80
+2 320
+3 1136
+4 600
+   \endverbatim
+   </li>
+   <li> Statistics need to be added and explained. </li>
+   <li> Generating 20 random plaintext-ciphertext pairs and running
+   solvers instances instantiated with these pairs to find the key:
+    <ul>
+     <li> Computing the random plaintext-ciphertext pairs:
+     \verbatim
+for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
+     \endverbatim
+     </li>
+     <li> Running minisat-2.2.0:
+     \verbatim
+shell> row=4;col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> minisat_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("minisat_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r   n       c         t sat      cfs      dec   rts      r1 mem ptime  stime
+1 1 436 2506.91 0.8407917   1 29661.36 31636.49 97.27 3094054   8     0 0.0099
+       cfl r    k s
+1 446043.1 1 10.5 3
+     \endverbatim
+     </li>
+     <li> Running OKsolver_2002:
+     \verbatim
+shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> oksolver_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("oksolver_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r   n    c     l      t sat      nds r1       r2 pls  ats     h file n2cr
+1 1 436 2648 10132 13.367   1 43111.14 68 52635.96   0 0.14 20.69   NA  256
+  dmcl dn  dc  dl   snds qnds   mnds tel oats n2cs m2cs r    k s
+1    0 68 212 660 197.69    0 104.08   0    0    0    0 1 10.5 3
+     \endverbatim
+     </li>
+    </ul>
    </li>
   </ul>
 

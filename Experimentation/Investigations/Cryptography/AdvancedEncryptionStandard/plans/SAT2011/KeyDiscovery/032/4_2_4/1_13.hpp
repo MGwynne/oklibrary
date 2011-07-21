@@ -465,6 +465,162 @@ EM
   </ul>
 
 
+  \todo Using the canonical CNF translation
+  <ul>
+   <li> Translation of aes(2,2,2,4):
+    <ul>
+     <li> The MixColumns operation is decomposed into its field
+     multiplications (02 and 03) and addition operations. </li>
+     <li> The MixColumns operation is translated by translating both
+     the MixColumns operation and its inverse (it is self-inverse). </li>
+     <li> We treat S-boxes, field multiplications and additions as boxes.
+     </li>
+     <li> The S-box and field multiplications are considered as a 8x1
+     boolean function, translated using the canonical CNF translation;
+     see ss_sbox_fullcnf_fcs in
+     ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/SboxAnalysis.mac.
+     see ssmult_fullcnf_fcs in
+     ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/FieldOperationsAnalysis.mac.
+     </li>
+     <li> Additions of arity k are considered bit-wise as (k+1)-bit to 1-bit
+     boolean functions; translated using their prime implicates. </li>
+    </ul>
+   </li>
+   <li> Generating small-scale AES for two rounds:
+   \verbatim
+shell> mkdir aes_2_2_4/full
+shell> cd aes_2_2_4/full
+shell> oklib --maxima
+oklib_load_all()$
+num_rounds : 2$
+num_rows : 2$
+num_columns : 2$
+exp : 4$
+final_round_b : false$
+box_tran : aes_full_box$
+mc_tran : aes_mc_bidirectional$
+oklib_monitor : true$
+output_ss_fcl_std(num_rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+
+shell> cat ssaes_r2_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
+ n non_taut_c red_l taut_c orig_l comment_count finished_bool
+328 11176 86376 0 86376 329 1
+ length count
+1 8
+3 544
+4 64
+8 10560
+   \endverbatim
+   </li>
+   <li> In this translation, we have:
+    <ul>
+     <li> 2 full rounds (Key Addition, SubBytes, and MixColumns operation).
+     </li>
+     <li> 12 Sboxes:
+      <ul>
+       <li> 8 from SubBytes = 4 byte * 2 rounds; </li>
+       <li> 4 from key schedule = 2 row * 1 word * 2 rounds. </li>
+      </ul>
+     </li>
+     <li> 16 multiplications by 02: 2 rows * 1 multiplication * 2 columns
+     * 2 rounds * 2 directions (forward + inverse). </li>
+     <li> 16 multiplications by 03: 2 rows * 1 multiplication * 2 columns
+     * 2 rounds * 2 directions (forward + inverse). </li>
+     <li> 144 additions:
+      <ul>
+       <li> 76 additions of arity 2:
+        <ul>
+         <li> 32 from key additions = 16 bits * 2 round; </li>
+         <li> 16 from final key addition = 16 bits; </li>
+         <li> 24 from the key schedule = (16 bits - 4 bits) * 2 round. </li>
+         <li> 32 from forward MixColumns = 2 rows * 2 column * 4 bits *
+         2 round; </li>
+         <li> 32 from inverse MixColumns = 2 rows * 2 column * 4 bits * 2
+         round. </li>
+        </ul>
+        <li> 8 additions of arity 3:
+         <ul>
+          <li> 8 from the key schedule = 4 bits * 2 round. </li>
+         </ul>
+        </li>
+       </li>
+      </ul>
+     </li>
+     <li> 8 bits for the constant in the key schedule = 4 bits * 2 rounds.
+     </li>
+    </ul>
+   </li>
+   <li> All boxes are represented by their canonical CNFs. Each box
+   is a 4-bit permutation considered as an 8x1 boolean function, and
+   so the canonical CNF has 2^8 - 2^4 = 240 clauses of length 8.
+   </li>
+   <li> This instances has 44 boxes = 12 S-boxes + 32 multiplications.
+   </li>
+   <li> This instance has the following number of clauses of length:
+    <ul>
+     <li> 1 : 8 = key schedule constant * 1; </li>
+     <li> 3 : 544 = 136 additions (arity 2) * 4; </li>
+     <li> 4 : 64 = 4 additions (arity 3) * 8; </li>
+     <li> 8 : 10560 = 44 boxes * 240. </li>
+    </ul>
+   </li>
+   <li> Generating 20 random plaintext-ciphertext pairs and running
+   solvers instances instantiated with these pairs to find the key:
+    <ul>
+     <li> Computing the random plaintext-ciphertext pairs:
+     \verbatim
+for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
+     \endverbatim
+     </li>
+     <li> Running minisat-2.2.0:
+     \verbatim
+shell> col=2; row=2; e=4; r=2; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> minisat_results;
+     \endverbatim
+     yields:
+     \verbatim
+shell> oklib --R
+E = read.table("minisat_results", header=TRUE)
+EM = aggregate(E, by=list(r=E$r), FUN=mean)
+EM
+  r   n       c      t sat      cfs      dec   rts       r1 mem  ptime  stime
+1 2 328 11122.3 0.4875   1 18593.56 22750.68 69.45 851741.4  20 0.0028 0.0845
+       cfl r    k s
+1 225584.2 2 10.5 3
+     \endverbatim
+     </li>
+     <li> Running OKsolver_2002:
+     \verbatim
+shell> col=2; row=2; e=4; r=2; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    echo "Seed ${s}; Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
+  done;
+done;
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+  for k in $(seq 1 20); do
+    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
+  done;
+done >> oksolver_results;
+     \endverbatim
+     is still running after an hour, having solved no instances.
+     </li>
+    </ul>
+   </li>
+  </ul>
+
+
   \bug DONE (Corrected dimensions and specification for each file; added
   todo on updating translation functions)
   False specification of sizes

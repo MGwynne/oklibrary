@@ -128,18 +128,20 @@ maxima> ncl_list_full_dualts(8,16);
      <li> 16 : 42 = 42 boxes * 1. </li>
     </ul>
    </li>
-   <li> Then we can generate a random assignment with the plaintext and
-   ciphertext, leaving the key unknown:
-   \verbatim
+   <li> Considering 1 plaintext-ciphertext pair:
+    <ul>
+     <li> Generate a random assignment with the plaintext and ciphertext,
+     leaving the key unknown:
+     \verbatim
 maxima> output_ss_random_pc_pair(seed,num_rounds,num_columns,num_rows,exp,final_round_b);
-   \endverbatim
-   and the merging the assignment with the translation:
-   \verbatim
+     \endverbatim
+     and the merging the assignment with the translation:
+     \verbatim
 shell> AppendDimacs-O3-DNDEBUG ssaes_r1_c4_rw2_e4_f0.cnf ssaes_pkpair_r1_c4_rw2_e4_f0_s1.cnf > r1_keyfind.cnf
-   \endverbatim
-   </li>
-   <li> minisat-2.2.0 solves it in 0.03s:
-   \verbatim
+     \endverbatim
+     </li>
+     <li> minisat-2.2.0 solves it in 0.03s:
+     \verbatim
 restarts              : 11
 conflicts             : 1654           (55133 /sec)
 decisions             : 2581           (0.00 % random) (86033 /sec)
@@ -147,23 +149,25 @@ propagations          : 211137         (7037900 /sec)
 conflict literals     : 36509          (24.97 % deleted)
 Memory used           : 19.00 MB
 CPU time              : 0.03 s
-   \endverbatim
-   </li>
-   <li> cryptominisat solves it in 0.03s:
-   \verbatim
+     \endverbatim
+     </li>
+     <li> cryptominisat solves it in 0.03s:
+     \verbatim
 c restarts                 : 3
 c conflicts                : 362         (12066.67  / sec)
 c decisions                : 581         (0.00      % random)
 c CPU time                 : 0.03        s
-   \endverbatim
-   ??? what does "Verified 1017 clauses." mean here ???
-   </li>
-   <li> OKsolver solves it in 0.9s:
-   \verbatim
+     \endverbatim
+     ??? what does "Verified 1017 clauses." mean here ???
+     </li>
+     <li> OKsolver solves it in 0.9s:
+     \verbatim
 c running_time(sec)                     0.9
 c number_of_nodes                       103
 c number_of_2-reductions                3705
-   \endverbatim
+     \endverbatim
+     </li>
+    </ul>
    </li>
   </ul>
 

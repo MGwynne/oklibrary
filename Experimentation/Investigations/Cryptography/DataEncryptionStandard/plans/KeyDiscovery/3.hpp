@@ -549,7 +549,5 @@ EM
    \endverbatim
    </li>
   </ul>
-   <li> OKsolver_2002 still running. </li>
-  </ul>
 
 */

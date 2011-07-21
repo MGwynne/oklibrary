@@ -39,8 +39,8 @@ License, or any later version. */
      the MixColumns operation and its inverse (it is self-inverse). </li>
      <li> We treat S-boxes, field multiplications and additions as boxes.
      </li>
-     <li> The S-box and field multiplications are considered as a 8-bit to
-     1-bit boolean functions, translated using the canonical translation;
+     <li> The S-box and field multiplications are considered as a 8x1
+     boolean functions, translated using the canonical translation;
      see dualts_fcl in
      ComputerAlgebra/Satisfiability/Lisp/FiniteFunctions/TseitinTranslation.mac.
      </li>

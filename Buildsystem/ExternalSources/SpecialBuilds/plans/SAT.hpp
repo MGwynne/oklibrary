@@ -10,6 +10,31 @@ License, or any later version. */
   \brief Plans regarding building of SAT solvers and libraries
 
 
+  \bug Minisat-2.2.0 and OKsolver return wrong times on some machines
+  <ul>
+   <li> Using machines in the XXX. </li>
+   <li> Steps to reproduce:
+   \verbatim
+shell> QuineMcCluskey-n16-O3-DNDEBUG AES_Sbox_full.cnf > AES_Sbox_pi.cnf
+shell> RandomShuffleDimacs-O3-DNDEBUG 103 < AES_Sbox_pi.cnf | SortByClauseLength-O3-DNDEBUG > AES_Sbox_sortedpi.cnf
+shell> RUcpGen-O3-DNDEBUG AES_Sbox_sortedpi.cnf > AES_Sbox_gen.cnf
+shell> RandomShuffleDimacs-O3-DNDEBUG 1 < AES_Sbox_gen.cnf | SortByClauseLengthDescending-O3-DNDEBUG | RUcpBase-O3-DNDEBUG > AES_Sbox_base.cnf
+shell> cat AES_Sbox_base.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
+ n non_taut_c red_l taut_c orig_l comment_count finished_bool
+16 4398 30108 0 30108 0 1
+ length count
+5 1
+6 1187
+7 2703
+8 503
+9 4
+   
+nice -n 19 
+   \endverbatim
+   </li>
+  </ul>
+
+
   \todo Parallel SAT solvers
   <ul>
    <li> manySAT is proprietary? </li>

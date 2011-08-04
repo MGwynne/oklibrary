@@ -35,6 +35,79 @@ License, or any later version. */
   </ul>
 
 
+  \todo Open problems
+  <ul>
+   <li> For a description of the investigation, please see
+   Cryptography/AdvancedEncryptionStandard/plans/SAT2011/general.hpp. </li>
+   <li> Here is a list of experiments which still need to be run, or
+   questions for which we still do not know the answer. </li>
+   <li> We need to find out which solvers and local search algorithms
+   perform best on different minimisation problems, see
+   'Find "best" solver(s) and local search algorithms for minimisation' in
+   AdvancedEncryptionStandard/plans/SAT2011/Representations/general.hpp.
+   </li>
+   <li> Representation data:
+    <ul>
+     <li> Basic Data:
+      <ul>
+       <li> We need basic data on the prime implicate and subsumption
+       hypergraph on all box (S-box etc) representations. </li>
+       <li> See "Computing basic data" in
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/general.hpp
+       for a list of box representations for which this data hasn't yet
+       been computed. </li>
+      </ul>
+     </li>
+     <li> Minimum representations:
+      <ul>
+       <li> We need to find the minimum CNF representations for all box
+       representations. </li>
+       <li> See "Finding minimum representations" in
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/general.hpp
+       for a list of box representations for which this data hasn't yet
+       been computed. </li>
+       <li> We need a link here to an overview of the methods for minimisation.
+       </li>
+      </ul>
+     </li>
+     <li> 1-base representations:
+      <ul>
+       <li> We need to find the minimum 1-base CNF representations for all box
+       representations. </li>
+       <li> See "Finding 1-base representations" in
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/general.hpp
+       for a list of box representations for which this data hasn't yet
+       been computed. </li>
+       <li> See Satisfiability/Reductions/Bases/plans/UcpBase.hpp. </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li> KeyDiscovery:
+    <ul>
+     <li> The experiments which have been done and which need to be done must
+     be extracted from AdvancedEncryptionStandard/plans/SAT2011/KeyDiscovery
+     and listed here. </li>
+    </ul>
+   </li>
+   <li> Investigations into the prime implicates, subsumption hypergraphs
+   and minimum representations of:
+    <ul>
+     <li> Random permutations (see
+     "First considerations of random permutation" in
+     Experimentation/Investigations/BooleanFunctions/plans/Permutations.hpp).
+     </li>
+     <li> Random linear maps (see
+     "Affine bijections over ZZ_2" in
+     Experimentation/Investigations/BooleanFunctions/plans/Permutations.hpp).
+     </li>
+     <li> Random boolean functions (see
+     Experimentation/Investigations/BooleanFunctions/plans/general.hpp). </li>
+    </ul>
+   </li>
+  </ul>
+
+
 
   \todo Investigating dimensions
   <ul>
@@ -221,105 +294,6 @@ License, or any later version. */
    better explanations. </li>
    <li> For more information, see
    Cryptology/Lisp/Cryptanalysis/Rijndael/plans/Translations.hpp. </li>
-  </ul>
-
-
-  \todo Open problems
-  <ul>
-   <li> For a description of the investigation, please see
-   Cryptography/AdvancedEncryptionStandard/plans/SAT2011/general.hpp. </li>
-   <li> Here is a list of experiments which still need to be run, or
-   questions for which we still do not know the answer. </li>
-   <li> We need to find out which solvers and local search algorithms
-   perform best on different minimisation problems, see
-   AdvancedEncryptionStandard/plans/SAT2011/Representations/general.hpp.
-   </li>
-   <li> We need basic data on the prime implicates and subsumption
-   hypergraphs for the following:
-    <ul>
-     <li> Small scale S-box (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_4.hpp).
-     </li>
-     <li> Small scale field multiplications (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_e_4.hpp).
-     </li>
-     <li> Small scale field inversion (no plans file yet). </li>
-     <li> Small scale linear map (no plans file yet). </li>
-     <li> Small scale linear map with field multiplications (no plans file
-     yet). </li>
-     <li> AES field multiplications:
-      <ul>
-       <li> We consider 256 multiplications: {00,...,255}. </li>
-       <li> 00, 01, 02, 03, 09, 11, 13, 14 : DONE. </li>
-       <li> The other 247. </li>
-      </ul>
-     </li>
-     <li> AES Sbox linear map with field multiplications (no plans file yet).
-     </li>
-     <li> AES Sbox (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp)
-     : DONE. </li>
-     <li> AES field inversion (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Inv_8.hpp)
-     : DONE. </li>
-     <li> AES Sbox linear map (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/LinearMap_8.hpp)
-     : DONE. </li>
-    </ul>
-   </li>
-   <li> We need to find minimum CNF representations for the following
-   functions:
-    <ul>
-     <li> AES Sbox; no minimum yet, smallest 294 (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp).
-     </li>
-     <li> AES field inversion (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Inv_8.hpp).
-     </li>
-     <li> AES Sbox linear map (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/LinearMap_8.hpp).
-     </li>
-     <li> AES Sbox linear map with field multiplications (no plans file yet).
-     </li>
-     <li> Small scale field inversion (no plans file yet). </li>
-     <li> Small scale linear map (no plans file yet). </li>
-     <li> Small scale linear map with field multiplications (no plans file
-     yet). </li>
-     <li> AES field multiplications (255):
-      <ul>
-       <li> The remaining 251. </li>
-       <li> 03, see
-       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_3_8.hpp.
-       </li>
-       <li> 02, minimum size 20 (see
-       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_2_8.hpp) :
-       DONE. </li>
-       <li> 00, 01 : DONE (trivial) </li>
-      </ul>
-     </li>
-     <li> Small scale field multiplications (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_e_4.hpp) :
-     DONE. </li>
-     <li> Small scale Sbox; minimum 22 (see
-     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp) 
-     : DONE. </li>
-    </ul>
-   </li>
-   <li> Investigations into the prime implicates, subsumption hypergraphs
-   and minimum representations of:
-    <ul>
-     <li> Random permutations (see
-     "First considerations of random permutation" in
-     Experimentation/Investigations/BooleanFunctions/plans/Permutations.hpp).
-     </li>
-     <li> Random linear maps (see
-     "Affine bijections over ZZ_2" in
-     Experimentation/Investigations/BooleanFunctions/plans/Permutations.hpp).
-     </li>
-     <li> Random boolean functions (see
-     Experimentation/Investigations/BooleanFunctions/plans/general.hpp). </li>
-    </ul>
-   </li>
   </ul>
 
 

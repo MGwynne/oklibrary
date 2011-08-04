@@ -16,6 +16,132 @@ License, or any later version. */
   </ul>
 
 
+  \todo Computing basic data
+  <ul>
+   <li> We need basic data on the prime implicates and subsumption
+   hypergraphs for the following:
+    <ul>
+     <li> Small scale S-box (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_4.hpp).
+     </li>
+     <li> Small scale field multiplications (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_e_4.hpp).
+     </li>
+     <li> Small scale field inversion (no plans file yet). </li>
+     <li> Small scale linear map (no plans file yet). </li>
+     <li> Small scale linear map with field multiplications (no plans file
+     yet). </li>
+     <li> AES field multiplications:
+      <ul>
+       <li> We consider 256 multiplications: {00,...,255}. </li>
+       <li> 00, 01, 02, 03, 09, 11, 13, 14 : DONE. </li>
+       <li> The other 247. </li>
+      </ul>
+     </li>
+     <li> AES Sbox linear map with field multiplications (no plans file yet).
+     </li>
+     <li> AES Sbox (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp)
+     : DONE. </li>
+     <li> AES field inversion (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Inv_8.hpp)
+     : DONE. </li>
+     <li> AES Sbox linear map (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/LinearMap_8.hpp)
+     : DONE. </li>
+    </ul>
+   </li>
+  </ul>
+
+
+  \todo Finding minimum representations
+  <ul>
+   <li> We need to find minimum CNF representations for the following
+   functions:
+    <ul>
+     <li> AES Sbox; no minimum yet, smallest 294 (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp).
+     </li>
+     <li> AES field inversion (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Inv_8.hpp).
+     </li>
+     <li> AES Sbox linear map (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/LinearMap_8.hpp).
+     </li>
+     <li> AES Sbox linear map with field multiplications (no plans file yet).
+     </li>
+     <li> Small scale field inversion (no plans file yet). </li>
+     <li> Small scale linear map (no plans file yet). </li>
+     <li> Small scale linear map with field multiplications (no plans file
+     yet). </li>
+     <li> AES field multiplications (255):
+      <ul>
+       <li> The remaining 251. </li>
+       <li> 03, see
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_3_8.hpp.
+       </li>
+       <li> 02, minimum size 20 (see
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_2_8.hpp) :
+       DONE. </li>
+       <li> 00, 01 : DONE (trivial) </li>
+      </ul>
+     </li>
+     <li> Small scale field multiplications (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_e_4.hpp) :
+     DONE. </li>
+     <li> Small scale Sbox; minimum 22 (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_4.hpp)
+     : DONE. </li>
+    </ul>
+   </li>
+  </ul>
+
+
+  \todo Finding 1-base representations
+  <ul>
+   <li> We do not know if any of the following are the smallest
+   possible 1-bases. See "R-based representations". </li>
+   <li> We need to find 1-base CNF representations for the following
+   functions:
+    <ul>
+     <li> AES Sbox; smallest 4398 (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_8.hpp).
+     </li>
+     <li> AES field inversion (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Inv_8.hpp).
+     </li>
+     <li> AES Sbox linear map (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/LinearMap_8.hpp).
+     </li>
+     <li> AES Sbox linear map with field multiplications (no plans file yet).
+     </li>
+     <li> Small scale field inversion (no plans file yet). </li>
+     <li> Small scale linear map (no plans file yet). </li>
+     <li> Small scale linear map with field multiplications (no plans file
+     yet). </li>
+     <li> AES field multiplications (255):
+      <ul>
+       <li> The remaining 251. </li>
+       <li> 03, see
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_3_8.hpp.
+       </li>
+       <li> 02, smallest 22 (see
+       AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_2_8.hpp) :
+       DONE. </li>
+       <li> 00, 01 : DONE (trivial) </li>
+      </ul>
+     </li>
+     <li> Small scale field multiplications (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Mul_e_4.hpp) :
+     DONE. </li>
+     <li> Small scale Sbox; smallest 27 (see
+     AdvancedEncryptionStandard/plans/SAT2011/Representations/Sbox_4.hpp)
+     : DONE. </li>
+    </ul>
+   </li>
+  </ul>
+
+
   \todo Connections
   <ul>
    <li> See

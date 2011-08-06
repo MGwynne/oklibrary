@@ -34,6 +34,99 @@ License, or any later version. */
   </ul>
 
 
+  \todo Experiment scripts
+  <ul>
+   <li> The presentation of experimental data for DES in
+   Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/
+   is excessively verbose, and hides the underlying data. </li>
+   <li> Experiment generation should be a single command where the key
+   parameters can be easily seen, and there is no room for mistake. </li>
+   <li> Experimental results should be concise. </li>
+   <li> Experimental results should be extractable at any stage of the
+   computation, not only once a batch of 20 instances have been run on.
+   </li>
+   <li> We need scripts for:
+    <ul>
+     <li> Generating DES data (S-box representations etc). </li>
+     <li> Generating DES experiments; </li>
+     <li> Running DES experiments; </li>
+    </ul>
+   </li>
+   <li> Generating DES data:
+    <ul>
+     <li> We need scripts which generate CNF representations for all
+     of the DES S-boxes, for each different translation. </li>
+     <li> So we need the following scripts:
+      <ul>
+       <li> generate_des_sboxes_min: generates the CNF representations
+       for the DES S-boxes with the smallest (conjectured) number of clauses.
+       </li>
+       <li> generate_des_sboxes_1base: generates the CNF 1-base
+       representations for the DES S-boxes with the smallest (conjectured)
+       number of clauses. </li>
+      </ul>
+     </li>
+     <li> Note, in all cases, the minimum sizes are *not* known, and
+     so smaller representations might be found. </li>
+     <li> These scripts can then be updated manually if new smaller
+     representations are found. </li>
+     <li> The scripts should create a directories DES_Sboxes_min_${date} and
+     DES_Sboxes_1base_${date} respectively, and output the corresponding
+     representations for S-box i to "Sbox_${i}.cnf" within the directory.
+     </li>
+     <li> ${date} is a timestamp: $(date +"%Y-%m-%d-%H%M%S"). </li>
+    </ul>
+   </li>
+   <li> Generating DES experiments:
+    <ul>
+     <li> We need scripts which generate an uninstantiated DES instance
+     using each of the box translations. </li>
+     <li> So we need the following scripts (arguments given in parentheses):
+      <ul>
+       <li> generate_des_min-sbox_instance(r): generates the r-round DES using
+       the "minimum" translation for the S-boxes. </li>
+       <li> generate_des_1base-sbox_instance(r): generates the r-round DES
+       using the 1-base translation for the S-boxes. </li>
+       <li> generate_des_canon-sbox_instance(r): generates the r-round DES
+       using the canonical translation for the S-boxes. </li>
+       <li> generate_random_des_keydiscovery_instantiation(r,s): generates the
+       CNF Dimacs file containing unit-clauses for instantiating r-round DES
+       with the plaintext-ciphertext pair generated using the seed s. s should
+       be optional, and default to 1. </li>
+       <li> generate_random_des_keydiscovery_instantiations(r,s_max):
+       generates CNF Dimacs files containing unit-clauses for instantiating
+       r-round DES with the plaintext-ciphertext pairs generated using seeds
+       1,...,s_max. </li>
+      </ul>
+     </li>
+     <li> The "generate_des_*" scripts should generate directories
+     DES_${t}_r${r}_${date} where:
+      <ul>
+       <li> t is the translation (min, 1base or canon). </li>
+       <li> r is the number of rounds. </li>
+       <li> ${date} is a timestamp: $(date +"%Y-%m-%d-%H%M%S"). </li>
+      </ul>
+     </li>
+     <li> "generate_random_des_keydiscovery_instantiations" should
+     generate a directory DES_r${r}_s1-${s_max}_${date}. </li>
+    </ul>
+   </li>
+   <li> Running DES experiments:
+    <ul>
+     <li> We also need scripts for running individual solvers on all
+     combinations of instances in a DES experiment directory. </li>
+     <li> There should be a script per solver, which uses the monitoring
+     scripts to output concise data on each solver run as it is running,
+     and also to file. See "Extraction tools" in
+     ExperimentSystem/SolverMonitoring/plans/general.hpp. </li>
+    </ul>
+   </li>
+   <li> See also "Update experiment script" in
+   Investigations/Cryptography/AdvancedEncryptionStandard/plans/SAT2011/Experimentation.hpp.
+   </li>
+  </ul>
+
+
   \todo Add information on specific S-box translations to experiment instances
   <ul>
    <li> At present, if one encounters an experiment instance for a DES

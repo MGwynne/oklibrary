@@ -38,14 +38,29 @@ License, or any later version. */
   <ul>
    <li> Key Discovery:
     <ul>
-     <li> See "Using the 1-base translation for the S-boxes (6-to-4)" in
-     Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
+     <li> 5-round DES :
+      <ul>
+       <li> See "Using the 1-base translation for the S-boxes (6-to-4)" in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/5.hpp.
+       </li>
+       <li> See "Using the canonical translation for the S-boxes (6-to-4)" in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/5.hpp.
+       </li>
+       <li> See 'Using the minimum translation for the S-boxes (6-to-4)' in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/5.hpp.
+      </ul>
      </li>
-     <li> See "Using the canonical translation for the S-boxes (6-to-4)" in
-     Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
-     </li>
-     <li> See 'Using the minimum translation for the S-boxes (6-to-4)' in
-     Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
+     <li> 6-round DES :
+      <ul>
+       <li> See "Using the 1-base translation for the S-boxes (6-to-4)" in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
+       </li>
+       <li> See "Using the canonical translation for the S-boxes (6-to-4)" in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
+       </li>
+       <li> See 'Using the minimum translation for the S-boxes (6-to-4)' in
+       Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/6.hpp.
+      </ul>
      </li>
     </ul>
    </li>

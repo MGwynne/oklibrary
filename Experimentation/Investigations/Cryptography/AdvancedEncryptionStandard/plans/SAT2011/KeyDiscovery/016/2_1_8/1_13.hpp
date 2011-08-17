@@ -214,17 +214,15 @@ for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num
      </li>
      <li> Running minisat-2.2.0:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    minisat-2.2.0 r${r}_k${k}.cnf > minisat_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
   for k in $(seq 1 20); do
-    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat minisat_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
      \endverbatim
      yields:
@@ -233,25 +231,23 @@ shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r    n        c      t sat   cfs     dec  rts       r1 mem  ptime  stime
-1 1 3264 52483.23 0.1425   1 471.5 7827.61 4.09 416099.2  22 0.0375 0.0452
-       cfl r    k s
-1 137249.9 1 10.5 3
+  r    n     c      t sat    cfs  dec rts       r1 mem ptime  stime      cfl r
+1 1 3264 52508 0.0965   1 458.95 6076   4 423525.7  22 0.007 0.0375 124822.4 1
+     k
+1 10.5
      \endverbatim
      </li>
      <li> Running OKsolver_2002:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}.cnf > oksolver_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k" > oksolver_results;
   for k in $(seq 1 20); do
-    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat oksolver_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> oksolver_results;
      \endverbatim
      yields:
@@ -260,10 +256,10 @@ shell> oklib --R
 E = read.table("oksolver_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r    n     c      l     t sat nds r1      r2 pls  ats h file  n2cr dmcl dn
-1 1 3264 52564 154504 2.829   1   1 40 2556.63   0 0.55 0   NA 49232    0 40
-   dc  dl snds qnds mnds tel oats n2cs m2cs r    k s
-1 120 360    0    0    0   0    0    0    0 1 10.5 3
+  r    n     c      l    t sat nds r1     r2 pls  ats h file  n2cr dmcl dn  dc
+1 1 3264 52564 154504 0.86   1   1 40 974.15   0 0.55 0   NA 49232    0 40 120
+   dl snds qnds mnds tel oats n2cs m2cs r    k
+1 360    0    0    0   0    0    0    0 1 10.5
      \endverbatim
      </li>
     </ul>
@@ -501,17 +497,15 @@ for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num
      </li>
      <li> Running minisat-2.2.0:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    minisat-2.2.0 r${r}_k${k}.cnf > minisat_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
   for k in $(seq 1 20); do
-    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat minisat_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
      \endverbatim
      yields:
@@ -520,25 +514,23 @@ shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n       c      t sat     cfs     dec  rts       r1 mem ptime stime
-1 1 192 1646.96 0.0096   1 1578.48 1836.57 9.69 22142.69  19     0 5e-04
-       cfl r    k s
-1 15286.49 1 10.5 3
+  r   n    c     t sat    cfs     dec   rts    r1 mem ptime stime     cfl r
+1 1 192 1672 0.014   1 2172.9 2519.45 12.85 30390  19     0     0 20832.6 1
+     k
+1 10.5
      \endverbatim
      </li>
      <li> Running OKsolver_2002:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}.cnf > oksolver_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k" > oksolver_results;
   for k in $(seq 1 20); do
-    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat oksolver_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> oksolver_results;
      \endverbatim
      yields:
@@ -547,10 +539,10 @@ shell> oklib --R
 E = read.table("oksolver_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n    c    l     t sat      nds r1       r2 pls ats    h file n2cr dmcl dn
-1 1 192 1728 9364 1.448   1 12638.98 40 23778.04   0   0 16.3   NA  112    0 40
-   dc  dl snds qnds mnds tel oats n2cs m2cs r    k s
-1 120 360 2.93    0 2.01   0    0    0    0 1 10.5 3
+  r   n    c    l     t sat      nds r1      r2 pls ats    h file n2cr dmcl dn
+1 1 192 1728 9364 1.245   1 12624.05 40 22469.4   0   0 16.3   NA  112    0 40
+   dc  dl snds qnds mnds tel oats n2cs m2cs r    k
+1 120 360 4.35    0 3.25   0    0    0    0 1 10.5
      \endverbatim
      </li>
     </ul>
@@ -737,17 +729,15 @@ for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_columns,num
      </li>
      <li> Running minisat-2.2.0:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    minisat-2.2.0 r${r}_k${k}_s${s}.cnf > minisat_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    minisat-2.2.0 r${r}_k${k}.cnf > minisat_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k s" > minisat_results; for s in $(seq 1 5); do
+shell>  echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
   for k in $(seq 1 20); do
-    cat minisat_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat minisat_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
      \endverbatim
      yields:
@@ -756,25 +746,23 @@ shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n        c      t sat    cfs    dec  rts       r1 mem  ptime stime
-1 1 192 18248.62 0.5836   1 335.81 363.35 3.33 14769.97  20 0.0066 0.551
-      cfl r    k s
-1 2638.52 1 10.5 3
+  r   n     c      t sat   cfs   dec  rts       r1 mem ptime  stime    cfl r
+1 1 192 18272 0.4485   1 378.4 407.1 3.55 17333.15  20 0.003 0.4155 2898.3 1
+     k
+1 10.5
      \endverbatim
      </li>
      <li> Running OKsolver_2002:
      \verbatim
-shell> col=1; row=2; e=8; r=1; for s in $(seq 1 5); do
+shell> col=1; row=2; e=8; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}.cnf > oksolver_r${r}_k${k}.result 2>&1;
 done;
-shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k s" > oksolver_results; for s in $(seq 1 5); do
+shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k" > oksolver_results;
   for k in $(seq 1 20); do
-    cat oksolver_r${r}_k${k}_s${s}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k $s\" }";
-  done;
+    cat oksolver_r${r}_k${k}.result | awk -f $OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractOKsolver.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> oksolver_results;
      \endverbatim
      yields:
@@ -783,10 +771,10 @@ shell> oklib --R
 E = read.table("oksolver_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n     c      l     t sat    nds r1     r2 pls ats    h file n2cr dmcl dn
-1 1 192 18328 122872 2.572   1 620.29 40 913.57   0 0.3 11.8   NA  120    0 40
-   dc  dl snds qnds mnds tel oats n2cs m2cs r    k s
-1 120 360 0.26    0 0.26   0    0    0    0 1 10.5 3
+  r   n     c      l     t sat    nds r1    r2 pls ats    h file n2cr dmcl dn
+1 1 192 18328 122872 1.965   1 620.25 40 893.4   0 0.3 11.8   NA  120    0 40
+   dc  dl snds qnds mnds tel oats n2cs m2cs r    k
+1 120 360  0.3    0  0.6   0    0    0    0 1 10.5
      \endverbatim
      </li>
     </ul>

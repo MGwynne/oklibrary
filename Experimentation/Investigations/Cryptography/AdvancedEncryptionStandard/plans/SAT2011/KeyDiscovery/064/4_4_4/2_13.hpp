@@ -60,24 +60,22 @@ maxima> for seed : 1 thru 20 do output_ss_random_pc_pair(seed,num_rounds,num_col
      </li>
      <li> Running minisat-2.2.0:
      \verbatim
-shell> row=4; col=4; e=4; r=2; for s in $(seq 1 5); do
+shell> row=4; col=4; e=4; r=2;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    (time minisat-2.2.0 r${r}_k${k}_s${s}.cnf) > minisat_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    minisat-2.2.0 r${r}_k${k}.cnf > minisat_r${r}_k${k}.result 2>&1;
 done;
      \endverbatim
      is still running after a week...
      </li>
      <li> Running OKsolver_2002:
      \verbatim
-shell> row=4; col=2; e=4; r=1; for s in $(seq 1 5); do
+shell> row=4; col=2; e=4; r=1;
   for k in $(seq 1 20); do
-    echo "Seed ${s}; Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}_s${s}.cnf;
-    OKsolver_2002-O3-DNDEBUG r${r}_k${k}_s${s}.cnf > oksolver_r${r}_k${k}_s${s}.result 2>&1;
-  done;
+    echo "Key ${k} Round ${r}";
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
+    OKsolver_2002-O3-DNDEBUG r${r}_k${k}.cnf > oksolver_r${r}_k${k}.result 2>&1;
 done;
      \endverbatim
      is still running after a week...

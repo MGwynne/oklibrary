@@ -430,9 +430,9 @@ EM
      <li> Running OKsolver_2002:
      \verbatim
 shell> row=4; col=2; e=4; r=1;
-for k in $(seq 1 20); do
+  for k in $(seq 1 20); do
     echo "Key ${k} Round ${r}";
-    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf | RandomShuffleDimacs-O3-DNDEBUG $s > r${r}_k${k}.cnf;
+    AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
     OKsolver_2002-O3-DNDEBUG r${r}_k${k}.cnf > oksolver_r${r}_k${k}.result 2>&1;
 done;
 shell> echo "n  c  l  t  sat  nds  r1  r2  pls  ats h file n2cr  dmcl dn  dc  dl snds qnds mnds  tel  oats  n2cs  m2cs r k" > oksolver_results;
@@ -446,10 +446,10 @@ shell> oklib --R
 E = read.table("oksolver_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n    c    l     t sat      nds r1       r2 pls ats     h file n2cr dmcl
-1 1 436 2372 9244 13.85   1 55781.45 68 71121.65   0 2.2 22.45   NA  232    0
-  dn  dc  dl   snds qnds   mnds tel oats n2cs m2cs r    k
-1 68 212 660 136.75 0.05 142.15   0 12.6    0    0 1 10.5
+  r   n    c    l      t sat     nds r1      r2 pls ats    h file n2cr dmcl dn
+1 1 436 2372 9244 10.665   1 53767.4 68 73143.4   0 3.2 22.4   NA  232    0 68
+   dc  dl  snds qnds   mnds tel oats n2cs m2cs r    k
+1 212 660 142.1 0.05 196.95   0 8.85    0    0 1 10.5
      \endverbatim
      </li>
     </ul>

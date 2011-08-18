@@ -564,11 +564,13 @@ maxima> for seed : 1 thru 20 do output_ss_random_pc_pair(seed,rounds,num_columns
      </li>
      <li> Running minisat-2.2.0:
      \verbatim
-shell> col=1; row=2; e=8; r=1;
-for k in $(seq 1 20); do
+shell> col=1; row=2; e=8; 
+for r in $(seq 1 7); do
+  for k in $(seq 1 20); do
     echo "Key ${k} Round ${r}";
     AppendDimacs-O3-DNDEBUG ssaes_r${r}_c${col}_rw${row}_e${e}_f0.cnf ssaes_pcpair_r${r}_c${col}_rw${row}_e${e}_f0_s${k}.cnf > r${r}_k${k}.cnf;
     (time minisat-2.2.0 r${r}_k${k}.cnf) > minisat_r${r}_k${k}.result 2>&1;
+  done;
 done;
 shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
 for r in $(seq 1 6); do

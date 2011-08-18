@@ -51,6 +51,7 @@ License, or any later version. */
    All such translations apply to both the 6x4 S-box functions and
    the 4 decomposed 6x1 functions.
    </li>
+   <li> All translations so far takes > 8 days. </li>
    <li> For initial experiments we use the Argosat-desgen plaintext-ciphertext
    pairs. See "Transferring the Argosat-desgen example" in
    Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/KnownKeyBits.hpp.
@@ -144,7 +145,7 @@ shell> for k in $(seq 1 20); do
     (time minisat-2.2.0 des_6t4_1base_r${r}_s${k}.cnf) | tee minisat_r${r}_k${k}.result 2>&1;
   done;
    \endverbatim
-   is currently running.
+   takes > 8 days.
    </li>
   </ul>
 
@@ -242,7 +243,7 @@ shell> for k in $(seq 1 20); do
   done;
 done;
    \endverbatim
-   is currently running.
+   takes > 8 days.
    </li>
   </ul>
 
@@ -313,7 +314,7 @@ shell> for k in $(seq 1 20); do
   done;
 done;
    \endverbatim
-   is currentlying running.
+   takes > 8 days.
    </li>
   </ul>
 

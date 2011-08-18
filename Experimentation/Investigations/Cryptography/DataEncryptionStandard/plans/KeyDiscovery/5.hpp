@@ -65,13 +65,13 @@ License, or any later version. */
      See 'Using the "minimum"  translation for the S-boxes (6-to-4)'. </li>
     </ul>
    </li>
-   <li> Over 10 plaintext-ciphertext pair, using the:
+   <li> Over 20 plaintext-ciphertext pair, using the:
     <ul>
-     <li> 1-base translation; minisat-2.2.0 solves in ~7.9 hours (avg),
-     using ~ 330 million conflicts (avg).
+     <li> 1-base translation; minisat-2.2.0 solves in ~10.4 hours (avg),
+     using ~ 427 million conflicts (avg).
      See "Using the 1-base translation for the S-boxes (6-to-4)". </li>
-     <li> "minimum" translation; minisat-2.2.0 solves in ~6.4 hours (avg),
-     using ~ 388 million conflicts (avg).
+     <li> "minimum" translation; minisat-2.2.0 solves in ~5.1 hours (avg),
+     using ~ 331 million conflicts (avg).
      See 'Using the "minimum"  translation for the S-boxes (6-to-4)'. </li>
     </ul>
    </li>
@@ -203,35 +203,19 @@ shell> for k in $(seq 1 20); do
 
 shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
 for k in $(seq 1 10); do
-    OKP=~/Work/OKlibrary/OKplatform/; cat minisat_r${r}_k${k}.result | awk -f ${OKP}/OKsystem/OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
-done >> minisat_results;
-     \endverbatim
-     yields (original results) for 10 random plaintext-ciphertext pairs
-     (so far):
-     \verbatim
-shell> oklib --R
-E = read.table("minisat_results", header=TRUE)
-EM = aggregate(E, by=list(r=E$r), FUN=mean)
-EM
-  r   n    c        t sat       cfs       dec      rts          r1  mem ptime
-1 5 688 6920 6.472714   1 333410658 387767275 363272.2 28423228736 58.8 0.007
-  stime        cfl r   k
-1  0.01 9306172687 5 5.5
-     \endverbatim
-     and using "real" time from "time" command:
-     \verbatim
-shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
-for k in $(seq 1 10); do
     OKP=~/Work/OKlibrary/OKplatform/; cat minisat_r${r}_k${k}.result | awk -f extract_bash_time_minisat.awk | awk -f ${OKP}/OKsystem/OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
+     \endverbatim
+     yields:
+     \verbatim
 shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n    c        t sat       cfs       dec      rts          r1  mem ptime
-1 5 688 6920 28555.27   1 333410658 387767275 363272.2 28423228736 58.8 0.007
-  stime        cfl r   k
-1  0.01 9306172687 5 5.5
+  r   n    c        t sat       cfs       dec      rts          r1  mem  ptime
+1 5 688 6920 37454.02   1 427013617 495917628 462141.3 36457618986 64.2 0.0065
+  stime         cfl r    k
+1  0.01 11897817864 5 10.5
      \endverbatim
      where "extract_bash_time_minisat.awk" is:
      \verbatim
@@ -240,7 +224,6 @@ EM
 $0 !~ /^(CPU time|real)/ { print }
      \endverbatim
      </li>
-     <li> The experiment is on-going. </li>
     </ul>
    </li>
   </ul>
@@ -398,38 +381,21 @@ shell> for k in $(seq 1 20); do
     echo "Round ${r}; Key Seed ${k}";
     (time minisat-2.2.0 des_6t4_min_r${r}_s${k}.cnf) > minisat_r${r}_k${k}.result 2>&1;
   done;
-
 shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
-for k in $(seq 1 10); do
-    OKP=~/Work/OKlibrary/OKplatform/; cat minisat_r${r}_k${k}.result | awk -f ${OKP}/OKsystem/OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
-done >> minisat_results;
-     \endverbatim
-     yields (original results) for 10 random plaintext-ciphertext pairs
-     (so far):
-     \verbatim
-shell> oklib --R
-E = read.table("minisat_results", header=TRUE)
-EM = aggregate(E, by=list(r=E$r), FUN=mean)
-EM
-  r   n    c         t sat       cfs       dec      rts          r1  mem ptime
-1 5 688 4300 0.1413781   1 388840595 461106922 438494.4 31613118041 49.5     0
-  stime         cfl r   k
-1 0.006 10670127305 5 5.5
-     \endverbatim
-     and using "real" time from "time" command:
-     \verbatim
-shell> echo "n  c  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_results;
-for k in $(seq 1 10); do
+for k in $(seq 1 18) 20; do
     OKP=~/Work/OKlibrary/OKplatform/; cat minisat_r${r}_k${k}.result | awk -f extract_bash_time_minisat.awk | awk -f ${OKP}/OKsystem/OKlib/Experimentation/ExperimentSystem/SolverMonitoring/ExtractMinisat.awk | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
+     \endverbatim
+     yields (excluding seed=19, which is being rerun):
+     \verbatim
 shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
 EM
-  r   n    c        t sat       cfs       dec      rts          r1  mem ptime
-1 5 688 4300 23045.08   1 388840595 461106922 438494.4 31613118041 49.5     0
-  stime         cfl r   k
-1 0.006 10670127305 5 5.5
+  r   n    c        t sat       cfs       dec      rts          r1      mem
+1 5 688 4300 19386.51   1 348652824 413615499 394408.6 28356034481 45.84211
+  ptime       stime        cfl r        k
+1     0 0.003684211 9557061007 5 10.05263
      \endverbatim
      where "extract_bash_time_minisat.awk" is:
      \verbatim
@@ -438,7 +404,6 @@ EM
 $0 !~ /^(CPU time|real)/ { print }
      \endverbatim
      </li>
-     <li> The experiment is on-going. </li>
     </ul>
    </li>
   </ul>
@@ -568,7 +533,8 @@ sys     2565m9.274s
      \endverbatim
      taking ~1.8 days.
      </li>
-     <li> The experiment is on-going. </li>
+     <li> For the second random plaintext-ciphtext pair (seed = 2),
+     minisat-2.2.0 takes > 1 week. </li>
     </ul>
    </li>
   </ul>

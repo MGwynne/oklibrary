@@ -280,9 +280,17 @@ c splitting_cases                       2455
      <li> "-D 3400":
      \verbatim
 > SplittingViaOKsolver -D3400 gss-22-s100.cnf
+> cat SplitViaOKsolver_D3400gss22s100cnf_2011-08-19-135100/Result
+c running_time(sec)                     7288.7
+c number_of_nodes                       18651
+c number_of_2-reductions                259072
+c max_tree_depth                        15
+c number_of_1-autarkies                 3032269
+c splitting_cases                       9326
+> ProcessSplitViaOKsolver SplitViaOKsolver_D3400gss22s100cnf_2011-08-19-135100/
 ...
      \endverbatim
-     </li>
+     Each instance is taking ~4 seconds. </li>
     </ul>
    </li>
    <li> unknown_bits = 23:

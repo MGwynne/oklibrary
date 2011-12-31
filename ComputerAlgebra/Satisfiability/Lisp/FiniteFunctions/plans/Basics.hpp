@@ -151,6 +151,24 @@ License, or any later version. */
   </ul>
 
 
+  \todo Essential boolean variables
+  <ul>
+   <li> Given an nxm boolean function f, the i-th argument ("variable") is
+   inessential, w.r.t n, if f([...,0,....]) = f([...,1,...]) where 0 and 1
+   replace the i-th argument, and the remaining arguments are left open.
+   </li>
+   <li> The notion of equality we use here is as usual. That is, two nxm
+   boolean functions f and g are equal if f(v) = g(v) for all v in {0,1}^n.
+   </li>
+   <li> We need functions to check for:
+    <ul>
+     <li> "nxm" equality of boolean functions, and
+     <li> existence of inessential variables. </li>
+    </ul>
+   </li>
+  </ul>
+
+
   \todo DONE (we just use full clause-sets)
   Boolean functions represented by sets of satisfied/falsified inputs
   <ul>

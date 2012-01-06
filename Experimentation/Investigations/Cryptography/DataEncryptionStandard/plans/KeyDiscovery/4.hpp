@@ -71,6 +71,11 @@ License, or any later version. */
      <li> canonical (minisat-2.2.0: 305.66, OKsolver_2002: 3,200.5). </li>
     </ul>
    </li>
+   <li> We can generate instances where we specify multiple
+   plaintext-ciphertext pairs, per-key, as discussed in
+   "Generating instances using multiple plaintext-ciphertext pairs" in
+   Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/general.hpp.
+   </li>
   </ul>
 
 

@@ -75,6 +75,11 @@ License, or any later version. */
      See 'Using the "minimum"  translation for the S-boxes (6-to-4)'. </li>
     </ul>
    </li>
+   <li> We can generate instances where we specify multiple
+   plaintext-ciphertext pairs, per-key, as discussed in
+   "Generating instances using multiple plaintext-ciphertext pairs" in
+   Investigations/Cryptography/DataEncryptionStandard/plans/KeyDiscovery/general.hpp.
+   </li>
   </ul>
 
 

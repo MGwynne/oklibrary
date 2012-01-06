@@ -16,6 +16,7 @@ License, or any later version. */
   \par
    In Cryptography/DataEncryptionStandard/plans/KeyDiscovery/general.hpp the
    following topics are handled:
+    - Generating instances using multiple plaintext-ciphertext pair
     - Experiment scripts
     - Add information on specific S-box translations to experiment instances
     - Move into separate sub-module : DONE

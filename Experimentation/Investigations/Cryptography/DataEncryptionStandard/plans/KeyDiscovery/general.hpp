@@ -34,6 +34,66 @@ License, or any later version. */
   </ul>
 
 
+  \todo Generating instances using multiple plaintext-ciphertext pairs
+  <ul>
+   <li> We can construct instances with multiple plaintext-ciphertext
+   pairs by merging (using variable renamings which keep the key
+   variables the same) multiple DES translations using the following code:
+   \verbatim
+/* The same variable v in subsequent instances of a problem is
+   renamed to v, ren(v), ren(ren(v)), ren(ren(ren(v))) and so
+   on */
+declare(ren, noun)$
+declare(ren, posfun)$
+
+des_gen_multiple_plaintext(sbox_fcl_l, rounds, P_hex_l,K_hex) := block([aux_f : lambda([a],a), final_F : [[],[]],K],
+  K : create_list(desk_var(i),i,1,64),
+  if oklib_monitor then print("Generating DES..."),
+  F : des2fcl_gen(sbox_fcl_l,rounds),
+  if oklib_monitor then print("            Generated DES!"),
+  for i : 1 thru length(P_hex_l) do block(
+    if oklib_monitor then print("Calculating PC pair ", i),
+    P : des_plain2fcl_gen(hexstr2binv(P_hex_l[i]),rounds),
+    C_hex : des_encryption_hex_gen(rounds, P_hex_l[i],K_hex),
+    C : des_cipher2fcl_gen(hexstr2binv(C_hex),rounds),
+    if oklib_monitor then print("     standardising..."),
+    Fs : [F[1],append(F[2],P[2],C[2])],
+    if oklib_monitor then print("     renaming fcl..."),
+    Fs_rem : rename_fcl(Fs, append(K, map(aux_f,rest(Fs[1],length(K))) )),
+    if oklib_monitor then print("     combining..."),
+    final_F : [stable_unique(append(final_F[1],Fs_rem[1])), append(final_F[2], Fs_rem[2])],
+    aux_f : buildq([aux_f], lambda([a], ren(aux_f(a))))),
+    return(final_F))$
+
+gen_random_des_pc_pair(seed) := block(
+  set_random(make_random_state(seed)),
+  P_hex : lpad(int2hex(random(2**64)),"0",16),
+  K_hex : lpad(int2hex(random(2**64)),"0",16),
+  return([P_hex,K_hex]))$
+
+output_des_gen_multiple_plaintext(name, sbox_fcl_l, rounds, P_hex_l,K_hex_l,seed) := block([Fs : standardise_fcl(des_gen_multiple_plaintext(sbox_fcl_l, rounds, P_hex_l,K_hex_l))],
+  output_fcl_v(
+    sconcat(rounds, "-round DES instantiated with plaintext and ciphertext generated from seed ", seed, "; translated using the ",name," translation for the S-boxes (6-to-4)."),
+    Fs[1],
+    sconcat("des_6t4_",name,"_r",rounds,"_s",seed,"_p",length(P_hex_l),".cnf"),
+    Fs[2]))$
+   \endverbatim
+   </li>
+   <li> We can then generate 20 4-round DES key-discovery instances with
+   random plaintext-ciphertext pairs, where each instance includes 4
+   plaintext-ciphertext pairs for the same key, as follows:
+   \verbatim
+sbox_fcl_l : create_list(dualts_fcl([listify(setn(10)), bf2relation_fullcnf_fcs(des_sbox_bf(i),10)]), i, 1, 8)$
+for seed : 1 thru 20 do (print("Seed ", seed), output_des_gen_multiple_plaintext("canon", sbox_fcl_l, 5, create_list(gen_random_des_pc_pair(seed + i)[1], i, 1,4), gen_random_des_pc_pair(seed)[2],seed))$
+   \endverbatim
+   </li>
+   <li> Translations using additional plaintext-ciphertext pairs should be compared.
+   </li>
+   <li> The above code should be tidied and implemented in the
+   Maxima system. </li>
+  </ul>
+
+
   \todo Experiment scripts
   <ul>
    <li> The argumentation below seems dubious to OK:

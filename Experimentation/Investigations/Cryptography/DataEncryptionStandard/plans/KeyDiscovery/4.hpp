@@ -294,6 +294,11 @@ for seed : 1 thru 20 do block(
     sconcat("des_6t4_1base_r",rounds,"_s",seed,".cnf"),
     Fs[2]))$
 print("DONE!");
+
+# Generating instances with multiple plaintext-ciphertext pieces.
+for num_pairs in [2,4,8,16] do
+  for seed : 1 thru 20 do (
+    print("Seed ", seed), output_des_gen_multiple_plaintext("1base", sbox_fcl_l, rounds, create_list(gen_random_des_pc_pair(seed + i)[1], i, 1,num_pairs), gen_random_des_pc_pair(seed)[2],seed))$
    \endverbatim
    </li>
    <li> Statistics:
@@ -332,7 +337,9 @@ for F in sbox_fcl_l do print(ncl_list_fcl(F));
     </ul>
    </li>
    <li> Running minisat-2.2.0 on these instances:
-   \verbatim
+    <ul>
+     <li> Using 1 plaintext-ciphertext pair:
+     \verbatim
 shell> r=4;
 shell> for k in $(seq 1 20); do
     echo "Round ${r}; Key Seed ${k}; Random Seed ${s}...";
@@ -343,9 +350,9 @@ shell> echo "rn  rc  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_r
 for k in $(seq 1 20); do
     cat minisat_r${r}_k${k}.result | ExtractMinisat data-only | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
-   \endverbatim
-   yields (original results):
-   \verbatim
+     \endverbatim
+     yields (original results):
+     \verbatim
 shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
@@ -354,7 +361,77 @@ EM
 1 4 576 5536 35.9002   1 982518.8 1116844 1927.3 71803310 8.8 0.0035  0.01
        cfl r    k
 1 18830930 4 10.5
-   \endverbatim
+     \endverbatim
+     </li>
+     <li> 2 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${k}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${s}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc      t sat   cfs      dec   rts      r1   mem ptime stime
+1   1 1088 11072 3.5135   1 89283 102076.3 244.8 9211575 20.05     0 0.008
+      cfl r    s
+1 1401046 4 10.5
+     \endverbatim
+     </li>
+     <li> 4 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc      t sat      cfs     dec  rts      r1   mem  ptime stime
+1   1 2112 22144 0.5405   1 12211.05 15159.5 47.4 1555885 20.25 0.0035 0.022
+       cfl
+1 195682.7
+     \endverbatim
+     </li>
+     <li> 8 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc     t sat     cfs     dec   rts     r1 mem  ptime  stime
+1   1 4160 44288 0.276   1 5420.35 7458.25 26.65 792910  23 0.0095 0.0555
+      cfl
+1 81092.5
+     \endverbatim
+     </li>
+     <li> 16 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc     t sat     cfs     dec  rts      r1 mem  ptime  stime
+1   1 8256 88576 0.599   1 5862.65 7681.35 26.9 1599188  27 0.0365 0.1145
+       cfl r    s
+1 101371.6 4 10.5
+     \endverbatim
+     </li>
+    </ul>
    </li>
    <li> Running OKsolver_2002 on these instances:
    \verbatim
@@ -429,6 +506,11 @@ for seed : 1 thru 20 do block(
     sconcat("des_6t4_min_r",rounds,"_s",seed,".cnf"),
     Fs[2]))$
 print("DONE!");
+
+# Generating instances with multiple plaintext-ciphertext pieces.
+for num_pairs in [2,4,8,16] do
+  for seed : 1 thru 20 do (
+    print("Seed ", seed), output_des_gen_multiple_plaintext("1base", sbox_fcl_l, rounds, create_list(gen_random_des_pc_pair(seed + i)[1], i, 1,num_pairs), gen_random_des_pc_pair(seed)[2],seed))$
    \endverbatim
    </li>
    <li> Statistics:
@@ -468,7 +550,9 @@ for F in sbox_fcl_l do print(ncl_list_fcl(F));
     </ul>
    </li>
    <li> Running minisat-2.2.0 on these instances:
-   \verbatim
+    <ul>
+     <li> Using 1 plaintext-ciphertext pair per key:
+     \verbatim
 shell> r=4;
 shell> for k in $(seq 1 20); do
     echo "Round ${r}; Key Seed ${k}; Random Seed ${s}...";
@@ -479,9 +563,9 @@ shell> echo "rn  rc  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_r
 for k in $(seq 1 20); do
     OKP=~/Work/OKlibrary/OKplatform/; cat minisat_r${r}_k${k}.result | ExtractMinisat data-only | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
-   \endverbatim
-   yields:
-   \verbatim
+     \endverbatim
+     yields:
+     \verbatim
 shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
@@ -490,7 +574,76 @@ EM
 1 4 576 3440 31.20535   1 1331979 1655787 2558.05 79038583 8.2     0 0.001
        cfl r    k
 1 24357557 4 10.5
-   \endverbatim
+     \endverbatim
+     </li>
+     <li> 2 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_min_r${r}_s${k}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for r in $(seq 1 20); do for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${s}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+  done;
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn   rc     t sat    cfs      dec   rts       r1 mem ptime  stime
+1   1 1088 6880 5.129   1 179915 218342.9 452.3 16604238  19     0 0.0035
+      cfl
+1 2852476
+     \endverbatim
+     </li>
+     <li> 4 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc     t sat      cfs      dec   rts      r1 mem  ptime  stime
+1   1 2112 13760 0.784   1 23765.15 31666.35 85.05 2841203  20 0.0015 0.0125
+       cfl
+1 369959.3
+     \endverbatim
+     </li>
+     <li> 8 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc   t sat     cfs      dec  rts      r1 mem ptime stime      cfl
+1   1 4160 27520 0.4   1 10734.6 17350.65 45.3 1518482  22 0.006 0.028 151978.6
+     \endverbatim
+     </li>
+     <li> 16 plaintext-ciphertext pairs:
+     \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc      t sat      cfs      dec  rts      r1 mem  ptime  stime
+1   1 8256 55040 0.5475   1 10179.45 19496.15 43.6 2246301  24 0.0235 0.0575
+       cfl
+1 157553.9
+     \endverbatim
+     </li>
+    </ul>
    </li>
    <li> Running OKsolver_2002 on these instances:
    \verbatim

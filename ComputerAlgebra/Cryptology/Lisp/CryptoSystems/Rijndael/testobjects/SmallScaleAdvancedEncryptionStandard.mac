@@ -78,7 +78,7 @@ okltest_ss_inv_mixcolumns_gen(ss_inv_mixcolumns_gen);
    *****************
 */
 
-okltest_ss_key_expansion_gen(ss_key_expansion_gen); 
+okltest_ss_key_expansion_gen(ss_key_expansion_gen);
 
 /* *********************************
    * AES encryption and decryption *

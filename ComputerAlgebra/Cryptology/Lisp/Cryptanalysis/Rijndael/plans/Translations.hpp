@@ -10,6 +10,15 @@ License, or any later version. */
   \brief Plans for the translation of Rijndael into active clauses ("SAT constraints") etc in Maxima
 
 
+  \todo Update translation statistics
+  <ul>
+   <li> Several new possibilities for translation have been introduced
+   (aes_id_ks, aes_mc_boolm, aes_mc_box etc). </li>
+   <li> Statistics functions such as nvar_ss, ncl_ss etc must be updated
+   to support these new translation options. </li>
+  </ul>
+
+
   \todo Move AES box translations into separate file
   <ul>
    <li> Currently we have functions such as "aes_mul_ts_gen", and

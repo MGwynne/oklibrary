@@ -955,6 +955,68 @@ ss_key_expansion_cstr_cstl(cst) := block(
   return(rs)
 )$
 
+
+/* Key expansion using "identity" as key schedule. */
+
+ss_key_expansion_id_cstrb :
+ [ss_key_expansion_id_cstr_cstl,ss_key_expansion_id_namespace,
+  ss_key_expansion_id_ns_var_l]$
+
+
+kill(ss_key_expansion_id_ns)$
+declare(ss_key_expansion_id_ns,noun)$
+declare(ss_key_expansion_id_ns,posfun)$
+ss_key_expansion_namespace([args]) :=
+  apply(nounify(ss_key_expansion_id_ns),args)$
+
+
+ss_key_expansion_id_ns_var_l([a]) := []$
+
+/* Returns a list of constraints enforcing the AES key expansion
+   constraint, given as input, to be the identity from round to round.
+   That is, all round keys are equal to the input key.
+   
+   Input:
+     cstt (constraint template)
+       A small scale AES key expansion constraint of the form
+
+       ["ss_key_expansion", vars,
+         ss_num_rounds, ss_num_columns, ss_num_rows, ss_exp, namespace]
+
+       where vars[1,...,key_size] are the input key variables and
+       vars[(i+1)*key_size,...,(i+2)*key_size] are the key variables for
+       the i-th round, for 0 <= i <= ss_num_rounds.
+
+   Output:
+     A constraint template list of size ss_num_rounds of the form
+
+     [eq_cst_1,...,eq_cst_i,...]
+
+     with "eq_cst" constraint templates, eq_cst_i, enforcing that the input
+     key is equal to the i-th round key.
+   
+*/
+ss_key_expansion_id_cstr_cstl(cstt) := block(
+  [namespace,bits, n_b : 4, n_r,kBits, rkBits, nc,rs : [],
+   sboxVars, addVars,fMat, kMat, sbox_i : 0, rc_i : 0,ss_arg_l,num_block_bits,
+   ss_num_rounds, ss_num_columns, ss_num_rows, ss_base, ss_exp,
+       ss_poly, ss_sbox_matrix, ss_affine_constant],
+  ss_arg_l : cstt_args_l(cstt),
+  ss_num_rounds : ss_arg_l[1],
+  ss_num_columns : ss_arg_l[2],
+  ss_num_rows : ss_arg_l[3],
+  ss_exp : ss_arg_l[5],
+  num_block_bits : ss_exp * ss_num_columns * ss_num_rows,
+  bits : cstt[2],
+  namespace : cstt_namespace_new(ss_key_expansion_namespace,cstt),
+  kBits : take_elements(num_block_bits,bits),
+  rkBits : partition_elements(rest(bits,num_block_bits), num_block_bits),
+  for r : 1 thru ss_num_rounds + 1 do
+    rs : cons(cstt_new("eq_cst", append(kBits, rkBits[r]),[],namespace),rs),
+  return(rs)    
+)$
+
+
 /* ****************************************
    * CNF Translation functions            *
    ****************************************

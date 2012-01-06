@@ -57,10 +57,11 @@ num_columns : 2$
 num_rows : 2$
 exp : 4$
 final_round_b : false$
+ks_tran : aes_std_ks$
 box_tran : aes_ts_box$
 seed : 1$
 mc_tran : aes_mc_bidirectional$
-output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, box_tran, mc_tran)$
+output_ss_fcl_std(rounds, num_columns, num_rows, exp, final_round_b, ks_tran, box_tran, mc_tran)$
 
 shell> cat ssaes_r20_c2_rw2_e4_f0.cnf | ExtendedDimacsFullStatistics-O3-DNDEBUG n
  n non_taut_c red_l taut_c orig_l comment_count finished_bool

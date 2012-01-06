@@ -12,36 +12,36 @@
 #
 # Takes eight arguments:
 #
-#   - The number r of rounds to run the experiment over.
-# BUG: what means "over"? "rounds" can have many meanings -- do we run the experiment several times?
-#   - The number k of plaintext-ciphertext pairs to generate per round.
-#   - The number c of columns in the AES block (1-4).
-#   - The number rw of rows in the AES block (1-4).
-#   - The size e of the element field (4 or 8).
-#   - Whether or not to use a special final round by variable fin_b (true or
-#     false).
-#   - The AES box translation to use, by variable box_tran, with values:
-#       - aes_ts_box - the canonical translation for all boxes.
-#       - aes_small_box - the smallest CNF translations for all boxes.
-#       - aes_rbase_box - the smallest r_1 bases for each box.
-#   - Which MixColumns translation to use, by variable mc_tran, with values:
-#       - aes_mc_forward - translating MixColumns in the forward direction.
-#       - aes_mc_bidirectional - translating MixColumns in the both directions.
-# 
+#   - The number, r, of rounds to run the experiment over.
+#     The script will generate an AES instance with i rounds and 
+#     assignments for 1 <= i <= r.
+#   - The number, k, of plaintext-ciphertext pairs to generate for each
+#     AES round.
+#   - The number of columns, c, in the AES block (1-4).
+#   - The number of rows, rw, in the AES block (1-4).
+#   - The size, e, of the element field (4 or 8).
+#   - Whether or not to use a special final round, fin_b (true or false).
+#   - Which key expansion translation to use, ks_tran:
+#       - aes_std_ks - Translating AES key expansion based on the standard 
+#                      definition.
+#       - aes_id_ks - Translating AES key expansion as the idenity on
+#                     round keys, i.e., all round keys are equal to the 
+#                     input key.
+#   - The AES box translation to use, box_tran:
+#       - aes_ts_box - The canonical translation for all boxes.
+#       - aes_small_box - The smallest CNF translations for all boxes.
+#       - aes_rbase_box - The smallest r_1 bases for each box.
+#   - Which MixColumns translation to use, mc_tran:
+#       - aes_mc_forward - Translating MixColumns in the encryption direction.
+#       - aes_mc_bidirectional - Translating MixColumns in the both directions.
+#       - aes_mc_boolm - Translating MixColumns directly as bit-level additions.
+#       - aes_mc_box - Translating whole MixColumn operation as a single box.
+#
 # The script outputs a Dimacs file containing the CNF translation of the AES
-# encryption scheme with the given parameters for each round size in (1-r)
-# BUG: what is "in (1-r)" ??
-# and for each round k Dimacs files are created containing the 
+# encryption scheme with the given parameters for each round size in {1,...,r}
+# and for each round size k, Dimacs files are created containing the 
 # plaintext-ciphertext variable assignments for random plaintext ciphertext pair
-# BUG: apparently the files are just spilled into the current directory??
 # chosen using seeds 1-k.
-#
-# To monitor the progress of the experiment generation, set the "oklib_monitor"
-# environment variable to "true".
-#
-# To use specialised Maxima functions for faster generation (at the loss of
-# readability of the variable names), set the "oklib_fast" environment variable
-# to true.
 #
 # The files names of the translation output, and plaintext-ciphertext assignment
 # files are:
@@ -55,6 +55,13 @@
 #   ssaes_r1-${r}_c${c}_rw${rw}_e${e}_f${fin_z}_k1-${k}_${box_tran}_${mc_tran}
 #
 # directory (created by this script).
+#
+# To monitor the progress of the experiment generation, set the "oklib_monitor"
+# environment variable to "true".
+#
+# To use specialised Maxima functions for faster generation (at the loss of
+# readability of the variable names), set the "oklib_fast" environment variable
+# to true.
 #
 # Each translation CNF file will contain a full variable mapping explaining
 # the origin of each variable at the top of the Dimacs file in the comments.
@@ -76,12 +83,12 @@ script_name="generate_aes_experiment"
 err="ERROR[${script_name}]:"
 version="0.1.2"
 
-if [[ ! $# -eq 8 ]]; then
-  echo -n "${err} Takes exactly eight arguments, the number of rounds, number ",
+if [[ ! $# -eq 9 ]]; then
+  echo -n "${err} Takes exactly nine arguments, the number of rounds, number ",
   echo -n "of plaintext-ciphertext pairs per round, the number of columns, "
   echo -n "the number of rows, the field size, whether or not to use a special "
-  echo -n "final round, which box translation to use and which MixColumn "
-  echo "translation to use."
+  echo -n "final round, which key expansion translation to use, which box "
+  echo -n "translation to use and which MixColumn translation to use."
   exit 1;
 fi  
 
@@ -95,8 +102,9 @@ columns=$3
 rows=$4
 e=$5
 fin_b=$6
-box_tran=$7
-mc_tran=$8
+ks_tran=$7
+box_tran=$8
+mc_tran=$9
 
 if [[ ${fin_b} == "true" ]]; then
   fin_z=1
@@ -104,13 +112,13 @@ else
   fin_z=0
 fi
 
-exp_directory_name=ssaes_r1-${rounds}_c${columns}_rw${rows}_e${e}_f${fin_z}_k1-${unique_keys_per_round}_${box_tran}_${mc_tran}
+exp_directory_name=ssaes_r1-${rounds}_c${columns}_rw${rows}_e${e}_f${fin_z}_k1-${unique_keys_per_round}_${ks_tran}_${box_tran}_${mc_tran}
 mkdir ${exp_directory_name}
 cd ${exp_directory_name}
 
 
-# Work out the number of arguments for the assignment clauses generator
-# Note, it doesn't take the two final translation arguments.
+# Convert the command line arguments to maxima arguments and pass
+# them directly to the maxima functions.
 shift 2
 args=$(echo "$@" | cut -d " " -f "1-" --output-delimiter=",")
 let num_key_args=$#-2

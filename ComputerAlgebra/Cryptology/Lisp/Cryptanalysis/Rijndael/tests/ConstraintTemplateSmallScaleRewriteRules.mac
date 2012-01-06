@@ -397,6 +397,19 @@ okltest_ss_key_expansion_cstr_cstl(f) := block([cst],
       setify(create_list(i,i,1,384)))),
   true)$
 
+okltest_ss_key_expansion_id_cstr_cstl(f) := block([cst],
+  assert(f(["ss_key_expansion",[1,2,3,4],3,1,1,2,1,'f]) =
+    [["eq_cst",[1,4],
+         lambda([a],f(ss_key_expansion_namespace(a,
+               ["ss_key_expansion",3,1,1,2,1,f])))],
+         ["eq_cst",[1,3],
+         lambda([a],f(ss_key_expansion_namespace(a,
+               ["ss_key_expansion",3,1,1,2,1,f])))],
+        ["eq_cst",[1,2],
+         lambda([a],f(ss_key_expansion_namespace(a,
+               ["ss_key_expansion",3,1,1,2,1,f])))]])
+)$
+
 
 /* ****************************************
    * Translation functions                *

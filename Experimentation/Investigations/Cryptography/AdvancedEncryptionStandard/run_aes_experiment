@@ -16,19 +16,30 @@
 
 # Takes eight arguments:
 #
-#   - The number (r) of rounds to run the experiment over.
-#   - The number (k) of plaintext-ciphertext pairs to generate per round.
-#   - The number of columns (c) in the AES block (1-4).
-#   - The number of rows (rw) in the AES block (1-4).
-#   - The size (e) of the element field (4 or 8).
-#   - Whether or not to use a special final round (fin_b) (true or false).
-#   - The AES box translation to use (box_tran):
+#   - The number, r, of rounds to run the experiment over.
+#     The script will generate an AES instance with i + 1/3 rounds and 
+#     assignments for 1 <= i <= r.
+#   - The number, k, of plaintext-ciphertext pairs to generate for each
+#     AES round.
+#   - The number of columns, c, in the AES block (1-4).
+#   - The number of rows, rw, in the AES block (1-4).
+#   - The size, e, of the element field (4 or 8).
+#   - Whether or not to use a special final round, fin_b (true or false).
+#   - Which key expansion translation to use, ks_tran:
+#       - aes_std_ks - Translating AES key expansion based on the standard 
+#                      definition.
+#       - aes_id_ks - Translating AES key expansion as the idenity on
+#                     round keys, i.e., all round keys are equal to the 
+#                     input key.
+#   - The AES box translation to use, box_tran:
 #       - aes_ts_box - The canonical translation for all boxes.
 #       - aes_small_box - The smallest CNF translations for all boxes.
 #       - aes_rbase_box - The smallest r_1 bases for each box.
-#   - Which MixColumns translation to use (mc_tran):
-#       - aes_mc_forward - Translating MixColumns in the forward direction.
+#   - Which MixColumns translation to use, mc_tran:
+#       - aes_mc_forward - Translating MixColumns in the encryption direction.
 #       - aes_mc_bidirectional - Translating MixColumns in the both directions.
+#       - aes_mc_boolm - Translating MixColumns directly as bit-level additions.
+#       - aes_mc_box - Translating whole MixColumn operation as a single box.
 #
 # The script generates output files in the experiment directory (assumed to 
 # have been created by generate_aes_experiment):
@@ -67,12 +78,12 @@ script_name="run_aes_experiment"
 err="ERROR[${script_name}]:"
 version="0.1.0"
 
-if [[ ! $# -eq 8 ]]; then
-  echo -n "${err} Takes exactly eight arguments, the number of rounds, number ",
+if [[ ! $# -eq 9 ]]; then
+  echo -n "${err} Takes exactly nine arguments, the number of rounds, number ",
   echo -n "of plaintext-ciphertext pairs per round, the number of columns, "
   echo -n "the number of rows, the field size, whether or not to use a special "
-  echo -n "final round, which box translation to use and which MixColumn "
-  echo "translation to use."
+  echo -n "final round, which key expansion translation to use, which box "
+  echo -n "translation to use and which MixColumn translation to use."
   exit 1;
 fi  
 
@@ -86,8 +97,9 @@ columns=$3
 rows=$4
 e=$5
 fin_b=$6
-box_tran=$7
-mc_tran=$8
+ks_tran=$7
+box_tran=$8
+mc_tran=$9
 
 if [[ ${fin_b} == "true" ]]; then
   fin_z=1
@@ -99,7 +111,7 @@ union_program=UnionDimacs-O3-DNDEBUG
 experiment_output_file=experiment.cnf
 run_all_solvers_script=$(readlink -m $(dirname $0))/run_all_solvers_2by2
 
-exp_directory_name=ssaes_r1-${rounds}_c${columns}_rw${rows}_e${e}_f${fin_z}_k1-${unique_keys_per_round}_${box_tran}_${mc_tran}
+exp_directory_name=ssaes_r1-${rounds}_c${columns}_rw${rows}_e${e}_f${fin_z}_k1-${unique_keys_per_round}_${ks_tran}_${box_tran}_${mc_tran}
 cd ${exp_directory_name}
 
 renice -n 19

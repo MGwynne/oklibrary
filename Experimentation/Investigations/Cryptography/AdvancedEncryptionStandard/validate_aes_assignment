@@ -46,11 +46,12 @@ script_name="validate_aes_assignment"
 err="ERROR[${script_name}]:"
 version="0.1.5"
 
-if [[ $# -ne 5 ]]; then
+if [[ $# -ne 6 ]]; then
   echo -n "${err} Takes precisely 5 arguments, the number of rounds, "
   echo -n "the number of columns in the block, the number of rows in the block, the "
-  echo -n "size of the exponent of the field and whether or not the cipher uses the "
-  echo -n "special final round (0 for false, 1 for true). The assignment, given as a "
+  echo -n "size of the exponent of the field, whether or not the cipher uses the "
+  echo -n "special final round (0 for false, 1 for true) and which key schedule to use."
+  echo -n "The assignment, given as a "
   echo -n "v-line from a SAT solver is taken from STDIN and a non-zero result is "
   echo "returned if the values are incorrect."
   exit 1;
@@ -61,6 +62,7 @@ columns=$2
 rows=$3
 e=$4
 final_round_b=$5
+ks_variant=$6
 max_input_var=$(expr ${columns} "*" ${rows} "*" ${e})
 
 
@@ -69,7 +71,7 @@ echo "PA : {" > ${partial_assignment_mac_file}
 cat - | sed 's/^v\? *//g' | sed 's/ *$/,/g' | tr -d '\n' | sed 's/ \+/,/g' | sed 's/,0,//g' >> ${partial_assignment_mac_file}
 echo '}$' >> ${partial_assignment_mac_file}
 
-oklib --maxima --batch-string='"oklib_load(\"OKlib/ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/Translations.mac\"); load(\"'${partial_assignment_mac_file}'\"); ss_validate(PA,'${rounds}','${columns}','${rows}', '${e}', if '${final_round_b}' = 1 then true else false);"'| grep "^(%o3) true *\$" > /dev/null
+oklib --maxima --batch-string='"oklib_load(\"OKlib/ComputerAlgebra/Cryptology/Lisp/Cryptanalysis/Rijndael/Translations.mac\"); load(\"'${partial_assignment_mac_file}'\"); ss_validate(PA,'${rounds}','${columns}','${rows}', '${e}', if '${final_round_b}' = 1 then true else false, '${ks_variant}');"' | grep "^(%o3) true *\$" > /dev/null
 result=$?
 
 rm -f ${partial_assignment_mac_file}

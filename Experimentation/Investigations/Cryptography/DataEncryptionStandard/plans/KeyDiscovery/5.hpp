@@ -260,10 +260,17 @@ for seed : 1 thru 20 do block(
     sconcat("des_6t4_1base_r",rounds,"_s",seed,".cnf"),
     Fs[2]))$
 print("DONE!");
+
+# Generating instances with multiple plaintext-ciphertext pieces.
+for num_pairs in [2,4,8,16] do
+  for seed : 1 thru 20 do (
+    print("Seed ", seed), output_des_gen_multiple_plaintext("1base", sbox_fcl_l, rounds, create_list(gen_random_des_pc_pair(seed + i)[1], i, 1,num_pairs), gen_random_des_pc_pair(seed)[2],seed))$
      \endverbatim
      </li>
      <li> Running minisat-2.2.0 on these instances:
-     \verbatim
+      <ul>
+       <li> Using 1 plaintext-ciphertext pair:
+       \verbatim
 shell> r=5;
 shell> for k in $(seq 1 20); do
     echo "Round ${r}; Key Seed ${k}";
@@ -274,9 +281,9 @@ shell> echo "rn  rc  t  sat  cfs dec rts r1 mem ptime stime cfl r k" > minisat_r
 for k in $(seq 1 10); do
     cat minisat_r${r}_k${k}.result | ExtractMinisat data-only | awk " { print \$0 \"  $r  $k\" }";
 done >> minisat_results;
-     \endverbatim
-     yields:
-     \verbatim
+       \endverbatim
+       yields:
+       \verbatim
 shell> oklib --R
 E = read.table("minisat_results", header=TRUE)
 EM = aggregate(E, by=list(r=E$r), FUN=mean)
@@ -285,7 +292,26 @@ EM
 1 5 688 6920 37454.02   1 427013617 495917628 462141.3 36457618986 64.2 0.0065
   stime         cfl r    k
 1  0.01 11897817864 5 10.5
-     \endverbatim
+       \endverbatim
+       </li>
+       <li> 4 plaintext-ciphertext pairs:
+       \verbatim
+shell> r=4; for s in $(seq 1 20); do RunMinisat des_6t4_1base_r${r}_s${s}_p2.cnf; done; done
+shell> (ExtractMinisat header-only |  awk " { print \$0 \" r s\"}"; for s in $(seq 1 20); do
+    cat ExperimentMinisat_des_6t4_1base_r${r}_s${k}_p2cnf_*/Statistics | tail -n 1 | awk " { print \$0 \" ${r} ${s}\"}";
+done) > MinisatStatistics
+# Results
+shell> oklib --R
+E = read.table("MinisatStatistics", header=TRUE)
+EM = aggregate(E, by=list(sat=E$sat), FUN=mean)
+EM
+  sat   rn    rc        t sat      cfs      dec     rts         r1   mem ptime
+1   1 2560 27680 5156.205   1 33147411 36533060 44999.4 7725200518 98.75 0.007
+  stime        cfl
+1  0.03 1105522063
+       \endverbatim
+       </li>
+      <ul>
      </li>
     </ul>
    </li>

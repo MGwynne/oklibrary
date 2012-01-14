@@ -716,7 +716,7 @@ read_ubcsat_dir = function(
 #
 run_ubcsat_command = function(
   input, alg_safe_name, alg_name,
-  tmp_directory, wrapper, ...) {
+  tmp_directory, wrapper, weighted=FALSE, ...) {
 
   filename = basename(input)
   output_file = run_ubcsat_result_path(tmp_directory, alg_safe_name)
@@ -734,7 +734,8 @@ run_ubcsat_command = function(
   return( paste(wrapper,
                 " -r out '", output_file, "' ",
                 " -r stats '", stats_output_file, "' ",
-                std_params," -alg ", alg_name, " -i ",input, " 2>&1 > ",
+                std_params," -alg ", alg_name, if (weighted) " -w " else "",
+                " -i ",input, " 2>&1 > ",
                 run_ubcsat_log_path(tmp_directory, alg_safe_name),
                 sep="") )
 }

@@ -102,6 +102,31 @@ irredundant_ref_resl(L) := block([used_indices, unused_indices],
 
 
 /* ************************************
+   * Statistics                       *
+   ************************************
+*/
+
+/* Computing the number of times each clause occurs in L, either as a
+   resolvent, or as a resolved clause. The result is an ordered set-map
+   where the order is given by order of the first occurrences of each
+   clause in L. */
+ncl_list_resl(L) := block([clauses_cl,clauses_ocs,h : sm2hm({}),oh],
+  clauses_cl : resl2cl(L),
+  for R in L do
+    if c_p(R) then set_hm(h,R,ev_hm_d(h,R,0)+1)
+    else block([C1,C2],
+      C1 : clauses_cl[R[2][1]],
+      C2 : clauses_cl[R[2][2]],
+      set_hm(h,R[1],ev_hm_d(h,R[1],0)+1),
+      set_hm(h,C1,ev_hm_d(h,C1,0)+1),
+      set_hm(h,C2,ev_hm_d(h,C2,0)+1)),
+  clauses_ocs : stable_unique(clauses_cl),
+  oh : sm2hm(setify(
+      map("[", clauses_ocs, listify(setn(length(clauses_ocs)))))),
+  sort(listify(hm2sm(h)),
+    lambda([M1,M2], is(ev_hm(oh,M1[1]) <= ev_hm(oh,M2[1])))))$
+
+/* ************************************
    * Extraction                       *
    ************************************
 */
@@ -111,6 +136,9 @@ axioms_resl2cl(L) := sublist(L,c_p)$
 
 /* Resolvents of a resolution list as a clause-list: */
 resolvents_resl2cl(L) := map(lambda([a],a[1]), sublist(L,listp))$
+
+/* Clauses of a resolution list as a clause-list: */
+resl2cl(L) := create_list(if c_p(R) then R else R[1], R, L)$
 
 
 /* ************************************

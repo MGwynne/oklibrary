@@ -94,6 +94,52 @@ okltest_reslrt_p(f) := block(
 
 
 /* ************************************
+   * Statistics                       *
+   ************************************
+*/
+
+okltest_ncl_list_resl(f) := block(
+  assert(f([]) = []),
+  assert(f([{}]) = [[{},1]]),
+  assert(f([{1},{-1}]) =  [[{1},1],[{-1},1]]),
+  assert(f([{1},{-1},[{},[1,2]]]) = [[{1},2],[{-1},2],[{},1]]),
+  assert(f(php_ext_uni_resl(2)) =
+    [[{-php_ext(1,1,1),php_ext(2,1,1),php_ext(2,1,2)},2],
+     [{-php_ext(1,1,1),php_ext(2,1,1),php_ext(2,3,1)},2],
+     [{php_ext(1,1,1),-php_ext(2,1,1)},2],
+     [{php_ext(1,1,1),-php_ext(2,1,2),-php_ext(2,3,1)},2],
+     [{-php_ext(1,2,1),php_ext(2,2,1),php_ext(2,2,2)},2],
+     [{-php_ext(1,2,1),php_ext(2,2,1),php_ext(2,3,1)},2],
+     [{php_ext(1,2,1),-php_ext(2,2,1)},2],
+     [{php_ext(1,2,1),-php_ext(2,2,2),-php_ext(2,3,1)},2],
+     [{-php_ext(2,1,1),-php_ext(2,2,1)},3],
+     [{-php_ext(2,1,1),-php_ext(2,3,1)},2],
+     [{php_ext(2,1,1),php_ext(2,1,2)},2],
+     [{-php_ext(2,1,2),-php_ext(2,2,2)},2],
+     [{-php_ext(2,1,2),-php_ext(2,3,2)},2],
+     [{-php_ext(2,2,1),-php_ext(2,3,1)},2],
+     [{php_ext(2,2,1),php_ext(2,2,2)},2],
+     [{-php_ext(2,2,2),-php_ext(2,3,2)},2],
+     [{php_ext(2,3,1),php_ext(2,3,2)},3],
+     [{-php_ext(1,2,1),-php_ext(2,1,1),php_ext(2,2,1)},2],
+     [{-php_ext(1,2,1),-php_ext(2,1,1)},2],
+     [{-php_ext(1,1,1),php_ext(2,1,1),-php_ext(2,2,1)},2],
+     [{-php_ext(1,1,1),-php_ext(2,2,1)},2],
+     [{-php_ext(1,1,1),-php_ext(1,2,1),php_ext(2,1,2)},2],
+     [{-php_ext(1,1,1),-php_ext(1,2,1),php_ext(2,2,2)},2],
+     [{-php_ext(1,1,1),-php_ext(1,2,1),-php_ext(2,1,2)},2],
+     [{-php_ext(1,1,1),-php_ext(1,2,1)},2],
+     [{php_ext(1,1,1),php_ext(2,1,2)},2],
+     [{php_ext(1,2,1),php_ext(2,2,2)},2],
+     [{php_ext(1,1,1),-php_ext(2,1,2),php_ext(2,3,2)},2],
+     [{php_ext(1,2,1),-php_ext(2,2,2),php_ext(2,3,2)},2],
+     [{php_ext(1,1,1),-php_ext(2,1,2)},2],
+     [{php_ext(1,2,1),-php_ext(2,2,2)},2],[{php_ext(1,1,1)},2],
+     [{php_ext(1,2,1)},2],[{-php_ext(1,2,1)},2],[{},1]]),
+  true)$
+
+
+/* ************************************
    * Extraction                       *
    ************************************
 */
@@ -124,6 +170,41 @@ okltest_resolvents_resl2cl(f) := block(
   assert(f([{-1},{1},{1,2},{1,4},[{},[1,2]],{3}]) = [{}]),
   assert(f([{-1},{1},{1,2},{1,4},[{},[1,2]],{3}]) = [{}]),
   assert(f([{-1},{1},{1,2},{1,4},[{},[1,2]],[{},[1,2]]]) = [{},{}]),
+  true)$
+
+okltest_resl2cl(f) := block(
+  assert(f([]) = []),
+  assert(f([{}]) = [{}]),
+  assert(f([{1},{-1}]) =  [{1},{-1}]),
+  assert(f([{1},{-1},[{},[1,2]]]) = [{1},{-1},{}]),
+  assert(f(php_ext_uni_resl(2)) =
+    [{-php_ext(1,1,1),php_ext(2,1,1),php_ext(2,1,2)},
+     {-php_ext(1,1,1),php_ext(2,1,1),php_ext(2,3,1)},
+     {php_ext(1,1,1),-php_ext(2,1,1)},
+     {php_ext(1,1,1),-php_ext(2,1,2),-php_ext(2,3,1)},
+     {-php_ext(1,2,1),php_ext(2,2,1),php_ext(2,2,2)},
+     {-php_ext(1,2,1),php_ext(2,2,1),php_ext(2,3,1)},
+     {php_ext(1,2,1),-php_ext(2,2,1)},
+     {php_ext(1,2,1),-php_ext(2,2,2),-php_ext(2,3,1)},
+     {-php_ext(2,1,1),-php_ext(2,2,1)},
+     {-php_ext(2,1,1),-php_ext(2,3,1)},{php_ext(2,1,1),php_ext(2,1,2)},
+     {-php_ext(2,1,2),-php_ext(2,2,2)},
+     {-php_ext(2,1,2),-php_ext(2,3,2)},
+     {-php_ext(2,2,1),-php_ext(2,3,1)},{php_ext(2,2,1),php_ext(2,2,2)},
+     {-php_ext(2,2,2),-php_ext(2,3,2)},{php_ext(2,3,1),php_ext(2,3,2)},
+     {-php_ext(1,2,1),-php_ext(2,1,1),php_ext(2,2,1)},
+     {-php_ext(1,2,1),-php_ext(2,1,1)},
+     {-php_ext(1,1,1),php_ext(2,1,1),-php_ext(2,2,1)},
+     {-php_ext(1,1,1),-php_ext(2,2,1)},
+     {-php_ext(1,1,1),-php_ext(1,2,1),php_ext(2,1,2)},
+     {-php_ext(1,1,1),-php_ext(1,2,1),php_ext(2,2,2)},
+     {-php_ext(1,1,1),-php_ext(1,2,1),-php_ext(2,1,2)},
+     {-php_ext(1,1,1),-php_ext(1,2,1)},{php_ext(1,1,1),php_ext(2,1,2)},
+     {php_ext(1,2,1),php_ext(2,2,2)},
+     {php_ext(1,1,1),-php_ext(2,1,2),php_ext(2,3,2)},
+     {php_ext(1,2,1),-php_ext(2,2,2),php_ext(2,3,2)},
+     {php_ext(1,1,1),-php_ext(2,1,2)},{php_ext(1,2,1),-php_ext(2,2,2)},
+     {php_ext(1,1,1)},{php_ext(1,2,1)},{-php_ext(1,2,1)},{}]),
   true)$
 
 okltest_irredundant_ref_resl(f) := block(

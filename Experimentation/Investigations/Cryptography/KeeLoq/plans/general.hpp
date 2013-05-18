@@ -73,16 +73,41 @@ maxima> hardness_wpi_cs(setify(Round_min[2]), setify(Round_primes[2]));
    \endverbatim
    So the minimum representation has hardness 1! </li>
    <li> Investigating the ANF to CNF encoding for the KeeLoq round used
-   in [Algebraic and Slide Attacks on KeeLoq; Bard, Courtois, Wagner 2008]:
+   in Section 6.1 of
+   [Algebraic and Slide Attacks on KeeLoq; Bard, Courtois, Wagner 2008]:
    \verbatim
- /* Generating the encoding: */
+/*  The variable mapping from Section 6.1 of
+   [Algebraic and Slide Attacks on KeeLoq; Bard, Courtois, Wagner 2008] is:
+
+   v_1 = k_{i mod 64}
+   v_2 = L_i
+   v_3 = L_16
+   v_4 = L_{i+31}
+   v_5 = L_{i+26}
+   v_6 = L_{i+20}
+   v_7 = L_{i+9}
+   v_8 = L_{i+1}
+   v_9 = y (i.e., the result bit for the round)
+   v10 = v4 * v6 (i.e. v10 = "L_{i+31} * L_{i+20}")
+   v11 = v4 * v8 (i.e., v11 = "beta_i" = "L_{i+31} * L_{i+1}")
+   v12 = v5 * v6 (i.e., v12 = "L_{i+26} * L_{i+20}")
+   v13 = v5 * v8 (i.e., v13 = "L_{i+26} * L_{i+1}")
+   v14 = v6 * v7 (i.e., v14 = "L_{i+20} * L_{i+9}")
+   v15 = v7 * v8 (i.e., v15 = "L_{i+9} * L_{i+1}")
+   v16 = v11 * v7 (i.e., v16 = "beta_i * L_{i+9}" = "L_{i+31} * L_{i+1} * L_{i+9}")
+   v17 = v11 * v6 (i.e., v17 = "beta_i * L_{i+20}" = "L_{i+31} * L_{i+1} * L_{i+20}")
+   v18 = v20 * v7 (i.e., v18 = "alpha_i * L_{i+9}" = "L_{i+31} * L_{i+26} * L_{i+9}")
+   v19 = v20 * v6 (i.e., v19 = "alpha_i * L_{i+20}" = "L_{i+31} * L_{i+26} * L_{i+20}")
+   v20 = v4 * v5 (i.e., v20 = "alpha_i" = "L_{i+31} * L_{i+26}"). */
+/* Translating the multiplications: */
 maxima> Round_anf : lappend(map(lambda([v,C], cons(adjoin(v,map("-",C)),create_list({-v,l},l,listify(C)))),[10,11,12,13,14,15,16,17,18,19,20],[{4,6},{4,8},{5,6},{5,8},{6,7},{7,8},{11,7},{11,6},{20,7},{20,6},{4,5}]))$
-/* Encoding the internal XOR additions in KeeLoq:
+/* Splitting the large XOR of the above multiplications into 4 and
+   then translating each directly and then adding the results:
      v1  + v2  + v3  + v7   = v21
      v8  + v10 + v11 + v12  = v22
      v13 + v14 + v15 + v16  = v23
      v17 + v18 + v19        = v24
-     v21 + v22 + v23 + v24  = v9
+     v21 + v22 + v23 + v24  = v9 (adding the results to produce the output bit)
 */
 maxima> Round_par_anf : append(
               even_parity_wv_cl([1,2,3,7,21]),

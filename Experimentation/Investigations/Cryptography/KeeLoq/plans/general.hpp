@@ -77,15 +77,19 @@ maxima> hardness_wpi_cs(setify(Round_min[2]), setify(Round_primes[2]));
    \verbatim
  /* Generating the encoding: */
 maxima> Round_anf : lappend(map(lambda([v,C], cons(adjoin(v,map("-",C)),create_list({-v,l},l,listify(C)))),[10,11,12,13,14,15,16,17,18,19,20],[{4,6},{4,8},{5,6},{5,8},{6,7},{7,8},{11,7},{11,6},{20,7},{20,6},{4,5}]))$
+/* Encoding the internal XOR additions in KeeLoq:
+     v1  + v2  + v3  + v7   = v21
+     v8  + v10 + v11 + v12  = v22
+     v13 + v14 + v15 + v16  = v23
+     v17 + v18 + v19        = v24
+     v21 + v22 + v23 + v24  = v9
+*/
 maxima> Round_par_anf : append(
-              fullxoreqs_wv_fcl(4,1,[1,2,3,7,21])[2],
-              fullxoreqs_wv_fcl(4,1,[8,10,11,12,22])[2],
-              fullxoreqs_wv_fcl(4,1,[13,14,15,16,23])[2],
-              fullxoreqs(3,1,[17,18,19,24])[2],
-              fullxoreqs_wv_fcl(4,1,[21,22,23,24,9])[2]);
-XXX Apparently each fullxoreqs_wv_fcl(m,1,L) just expresses that the first
-    variable in L is equal to all the others ???
-XXX
+              even_parity_wv_cl([1,2,3,7,21]),
+              even_parity_wv_cl([8,10,11,12,22]),
+              even_parity_wv_cl([13,14,15,16,23]),
+              even_parity_wv_cl([17,18,19,24]),
+              even_parity_wv_cl([21,22,23,24,9]));
 maxima> Round_anf : append(Round_anf,Round_par_anf);
 maxima> statistics_cs(Round_anf);
  [24,105,429,5,2]

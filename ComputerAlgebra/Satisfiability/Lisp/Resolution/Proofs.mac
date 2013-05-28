@@ -1,5 +1,5 @@
 /* Oliver Kullmann, 23.9.2011 (Swansea) */
-/* Copyright 2011, 2012 Oliver Kullmann
+/* Copyright 2011, 2012, 2013 Oliver Kullmann
 This file is part of the OKlibrary. OKlibrary is free software; you can redistribute
 it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation and included in this library; either version 3 of the
@@ -123,6 +123,26 @@ rename_resl(L,h) :=
   map(lambda([R],
         if c_p(R) then substitute_c(R,h)
         else [substitute_c(R[1],h),R[2]]), L)$
+
+/* Composition of resolution proofs via concatenation, removing repeated
+   clauses and re-indexing: */
+compose_resl([L]) := block([h : sm2hm({}), i : 0,LR,_r2c],
+  /* Replace indices with clauses */
+  _r2c : lambda([R], if c_p(R) then R else R[1]),
+  LR : map(lambda([P],
+         map(lambda([R],
+           if c_p(R) then R
+           else [R[1],[_r2c(P[R[2][1]]),_r2c(P[R[2][2]])]]), P)), L),
+  LR : lappend(LR),
+  LR : map(lambda([R],
+         if c_p(R) then
+           if ev_hm(h,R) # false  then false
+           else (i : i + 1, set_hm(h,R,i), R)
+         else
+           if ev_hm(h,R[1]) # false then false
+           else (i : i + 1, set_hm(h,R[1],i),
+                  [R[1], [ev_hm(h,R[2][1]), ev_hm(h,R[2][2])]])), LR),
+  return(delete(false,LR)))$
 
 
 /* ************************************

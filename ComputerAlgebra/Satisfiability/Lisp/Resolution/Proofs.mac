@@ -264,7 +264,106 @@ nvar_php_ext_uni_resl(n) := nvar_weak_php_unsat_ext(n)$
 ncl_php_ext_uni_resl(n) := (6*n^4+11*n^3+3*n^2+4*n+6)/6$
 
 
+/* Resolution refutation for the translation of
 
+   x_1 + ... + x_{n-1} + x_n = 0 (using y_2 to y_{n-1} auxiliary variables)
+   x_1 + ... + x_{n-1} + -x_n = 0 (using y'_2 to y'_{n-1} auxiliary variables)
+
+   for n>= 3 (for the translation, see gen_2xor_gcl in
+   ComputerAlgebra/Satisfiability/Lisp/Generators/LinearEquations.mac): */
+
+
+/* Providing names for variable indices in gen_2xor_fcl(n): */
+xor_x_var(n,i) := i$
+xor_y_var(n,i) := n + (i-1)$
+xor_yp_var(n,i) := n + (n-2) + (i-1)$
+/* The x (input) variables start from 1 to n, then the auxilliary y and y'
+   variables go from y_2 to y_{n-1} and y'_2 to y'_{n-1} respectively. */
+
+/* Deriving
+     primec_0(y_{i-1} = -y'_{i-1})
+   from
+     primec_0(y_{i} = -y'_{i})
+     primec_0(y_{i-1} \oplus x_{i} = y_{i})
+     primec_0(y'_{i-1} \oplus x_{i} = y'_{i})
+   using the variable naming scheme from gen_2xor_fcl(n) for n >= 4: */
+xor_2c_step_resl(n,i) := [
+  /* Initial clauses: primec_0(y_{i} = -y'_{i}): */
+  {-xor_y_var(n,i),-xor_yp_var(n,i)},                                /* c1 */
+  {xor_y_var(n,i),xor_yp_var(n,i)},                                  /* c2 */
+  /* Initial clauses: primec_0(y_{i-1} \oplus x_{i} = y_{i}): */
+  {-xor_y_var(n,i-1),-xor_x_var(n,i),-xor_y_var(n,i)},               /* c3 */
+  {-xor_y_var(n,i-1),xor_x_var(n,i),xor_y_var(n,i)},                 /* c4 */
+  {xor_y_var(n,i-1),-xor_x_var(n,i),xor_y_var(n,i)},                 /* c5 */
+  {xor_y_var(n,i-1),xor_x_var(n,i),-xor_y_var(n,i)},                 /* c6 */
+  /* Initial clauses: primec_0(y'_{i-1} \oplus x_{i} = y'_{i}): */
+  {-xor_yp_var(n,i-1),-xor_x_var(n,i),-xor_yp_var(n,i)},             /* c7 */
+  {-xor_yp_var(n,i-1),xor_x_var(n,i),xor_yp_var(n,i)},               /* c8 */
+  {xor_yp_var(n,i-1),-xor_x_var(n,i),xor_yp_var(n,i)},               /* c9 */
+  {xor_yp_var(n,i-1),xor_x_var(n,i),-xor_yp_var(n,i)},               /* c10 */
+  /* Deriving primec_0(y_{n-2} \oplus x_{n-1} = \ol{y'_{n-1}}): */
+  [{-xor_y_var(n,i-1),-xor_x_var(n,i),xor_yp_var(n,i)},[3,2]],       /* c11 */
+  [{-xor_y_var(n,i-1),xor_x_var(n,i),-xor_yp_var(n,i)},[4,1]],       /* c12 */
+  [{xor_y_var(n,i-1),-xor_x_var(n,i),-xor_yp_var(n,i)},[5,1]],       /* c13 */
+  [{xor_y_var(n,i-1),xor_x_var(n,i),xor_yp_var(n,i)},[6,2]],         /* c14 */
+  /* Deriving primec_0(y_{n-2} = \ol{y'_{n-2}}): */
+  [{-xor_yp_var(n,i-1),-xor_y_var(n,i-1),xor_yp_var(n,i)},[8,11]],   /* c15 */
+  [{-xor_yp_var(n,i-1),-xor_y_var(n,i-1),-xor_yp_var(n,i)},[7,12]],  /* c16 */
+  [{xor_yp_var(n,i-1),xor_y_var(n,i-1),-xor_yp_var(n,i)},[10,13]],   /* c17 */
+  [{xor_yp_var(n,i-1),xor_y_var(n,i-1),xor_yp_var(n,i)},[9,14]],     /* c18 */
+  /* Deriving primec_0(y_{i-1} = -y'_{i-1}): */
+  [{-xor_yp_var(n,i-1),-xor_y_var(n,i-1)},[15,16]],                  /* c19 */
+  [{xor_yp_var(n,i-1),xor_y_var(n,i-1)},[17,18]]]$                   /* c20 */
+
+/* Resolution refutation from
+     primec_0(x_{1} + x_{2} = -y_{2})
+     primec_0(x_{1} + x_{2} = y_{2})
+   using the variable naming scheme from gen_2xor_fcl(n):
+*/
+xor_2c_final_resl(n) := [
+  /* primec_0(x_{1} + x_{2} = y_{2}) */
+  {-xor_x_var(n,1),-xor_x_var(n,2),-xor_y_var(n,2)},             /* c1 */
+  {-xor_x_var(n,1),xor_x_var(n,2),xor_y_var(n,2)},               /* c2 */
+  {xor_x_var(n,1),-xor_x_var(n,2),xor_y_var(n,2)},               /* c3 */
+  {xor_x_var(n,1),xor_x_var(n,2),-xor_y_var(n,2)},               /* c4 */
+  /* primec_0(y_{2} = -y'_{2}) */
+  {-xor_y_var(n,2),-xor_yp_var(n,2)},                            /* c5 */
+  {xor_y_var(n,2),xor_yp_var(n,2)},                              /* c6 */
+  /* Deriving primec_0(x_{1} + x_{2} = -y'_{2}) */
+  [{-xor_x_var(n,1),-xor_x_var(n,2),xor_yp_var(n,2)},[1,6]],     /* c7 */
+  [{-xor_x_var(n,1),xor_x_var(n,2),-xor_yp_var(n,2)},[2,5]],     /* c8 */
+  [{xor_x_var(n,1),-xor_x_var(n,2),-xor_yp_var(n,2)},[3,5]],     /* c9 */
+  [{xor_x_var(n,1),xor_x_var(n,2),xor_yp_var(n,2)},[4,6]],       /* c10 */
+  /* primec_0(x_{1} + x_{2} = y'_{2}) */
+  {-xor_x_var(n,1),-xor_x_var(n,2),-xor_yp_var(n,2)},            /* c11 */
+  {-xor_x_var(n,1),xor_x_var(n,2),xor_yp_var(n,2)},              /* c12 */
+  {xor_x_var(n,1),-xor_x_var(n,2),xor_yp_var(n,2)},              /* c13 */
+  {xor_x_var(n,1),xor_x_var(n,2),-xor_yp_var(n,2)},              /* c14 */
+  /* Refutation */
+  [{-xor_x_var(n,1),-xor_x_var(n,2)},[7,11]],                    /* c15 */
+  [{-xor_x_var(n,1),xor_x_var(n,2)},[8,12]],                     /* c16 */
+  [{xor_x_var(n,1),-xor_x_var(n,2)},[9,13]],                     /* c17 */
+  [{xor_x_var(n,1),xor_x_var(n,2)},[10,14]],                     /* c18 */
+  [{-xor_x_var(n,1)},[15,16]],                                   /* c19 */
+  [{xor_x_var(n,1)},[17,18]],                                    /* c20 */
+  [{}, [19,20]]]$
+
+/* Resolution refutation of gen_2xor_fcl(n) for n >= 3: */
+xor_2c_resl(n) := compose_resl(
+    /* primec_0(y_{n-1} + x_n = 0) */
+    [{-xor_y_var(n,n-1),xor_x_var(n,n)},
+     {xor_y_var(n,n-1),-xor_x_var(n,n)},
+    /* primec_0(y'_{n-1} + x_n = 1) */
+     {-xor_yp_var(n,n-1),-xor_x_var(n,n)},
+     {xor_yp_var(n,n-1),xor_x_var(n,n)},
+    [{-xor_y_var(n,n-1),-xor_yp_var(n,n-1)},[1,3]],
+    [{xor_y_var(n,n-1),xor_yp_var(n,n-1)},[2,4]]],
+    uaapply(compose_resl,create_list(xor_2c_step_resl(n,n-i),i,1,n-3)),
+    xor_2c_final_resl(n))$
+
+/* Statistics xor_2c_resl: */
+nvar_xor_2c_resl(n) := 3*n-4$
+ncl_xor_2c_resl(n) := 18*n - 29$
 
 /*!
 \endhtmlonly

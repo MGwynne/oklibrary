@@ -69,16 +69,16 @@ m4ri_other_versions_okl ?=
 
 m4ri_base_name_okl := m4ri
 m4ri_recommended_okl := $(m4ri_base_name_okl)-$(m4ri_recommended_version_number_okl)
-m4ri_base_source_okl := $(ExternalSources)/sources/M4RI
+m4ri_base_source_okl := $(cryptominisat3_base_source_okl)
 m4ri_source_okl := $(m4ri_base_source_okl)/$(m4ri_recommended_okl)
 
-m4ri_base_build_dir_okl ?= $(ExternalSources_builds)/M4RI
+m4ri_base_build_dir_okl ?= $(cryptominisat_base_build_dir_okl)
 m4ri_build_dir_okl ?= $(m4ri_base_build_dir_okl)/$(m4ri_recommended_okl)
 
-m4ri_base_installation_dir_okl ?= $(ExternalSources_installations)/M4RI
-m4ri_installation_dir_okl ?= $(m4ri_base_installation_dir_okl)/$(m4ri_recommended_version_number_okl)
+m4ri_base_installation_dir_okl ?= $(cryptominisat3_base_installation_dir_okl)
+m4ri_installation_dir_okl ?= $(m4ri_base_installation_dir_okl)/m4ri-$(m4ri_recommended_version_number_okl)
 
-m4ri_base_doc_dir_okl ?= $(ExternalSources_doc)/M4RI
+m4ri_base_doc_dir_okl ?= $(cryptominisat3_base_doc_dir_okl)
 m4ri_doc_dir_okl ?= $(m4ri_base_doc_dir_okl)/$(m4ri_recommended_okl)
 m4ri_docu_page_okl ?= $(doc_dir)/doxygen_html/
 

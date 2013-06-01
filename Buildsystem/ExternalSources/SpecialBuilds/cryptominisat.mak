@@ -75,7 +75,7 @@ cryptominisat3_doc :
 cleancryptominisat3 :
 	-rm -rf $(cryptominisat3_base_build_dir_okl)
 
-cleanallcryptominisat3 : cleancryptominisat3 cleanm4ri
+cleanallcryptominisat3 : cleancryptominisat3 cleanallm4ri
 	-rm -rf $(cryptominisat3_base_installation_dir_okl) $(cryptominisat3_base_doc_dir_okl)
 
 
